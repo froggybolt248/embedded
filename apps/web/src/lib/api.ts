@@ -77,6 +77,8 @@ export type GroundingStatus =
   | "unbound"
   | "grounding"
   | "grounded"
+  /** ratings were read but no current table — grounded for the rail checks, not for the budget */
+  | "partial"
   | "ungrounded"
   | "unavailable"
   | "failed";

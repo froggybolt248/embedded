@@ -24,6 +24,16 @@ export const Requirement = z.object({
 });
 export type Requirement = z.infer<typeof Requirement>;
 
+export const CreateRequirementInput = Requirement.pick({ text: true }).extend({
+  kind: RequirementKind.optional(),
+  quantified: QuantifiedRequirement.nullable().optional(),
+  status: z.enum(["open", "met", "at-risk"]).optional(),
+});
+export type CreateRequirementInput = z.infer<typeof CreateRequirementInput>;
+
+export const UpdateRequirementInput = CreateRequirementInput.partial();
+export type UpdateRequirementInput = z.infer<typeof UpdateRequirementInput>;
+
 export const BlockRole = z.enum([
   "mcu",
   "sensor",

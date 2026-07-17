@@ -23,6 +23,11 @@ const GROUNDING_UI: Record<GroundingStatus, { dot: string; label: string; hint: 
     label: "grounded",
     hint: "Electrical specs read from this part's datasheet.",
   },
+  partial: {
+    dot: "bg-warn",
+    label: "no currents",
+    hint: "Ratings were read from the datasheet, but no current-consumption table — the rail checks run, the power budget can't count it.",
+  },
   ungrounded: { dot: "bg-warn", label: "no specs", hint: "No electrical specs for this part yet." },
   unavailable: {
     dot: "bg-ink-faint",

@@ -5,6 +5,7 @@ export { createProjectsRepo } from "./repositories/projects.js";
 export { createComponentsRepo, type ListComponentsFilter } from "./repositories/components.js";
 export { createArchetypesRepo } from "./repositories/archetypes.js";
 export { createBlocksRepo } from "./repositories/blocks.js";
+export { createRequirementsRepo } from "./repositories/requirements.js";
 export { createConnectionsRepo } from "./repositories/connections.js";
 export {
   createDatasheetsRepo,

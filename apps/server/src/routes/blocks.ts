@@ -128,12 +128,19 @@ export async function blockRoutes(app: FastifyInstance) {
       }
       const component = componentsRepo.get(block.componentId);
       const live = groundingState(block.componentId);
-      // a live state wins while a job is in flight; otherwise the specs are truth
+      // Grounding is not binary and pretending it is was a bug: a part with
+      // ratings but no current table IS grounded for the rail checks and is
+      // NOT for the power budget. One green dot next to a budget that says
+      // "no current data" is two panels contradicting each other, so the
+      // partial state is its own visible status rather than either lie.
+      const specs = component ? effectiveSpecs(component) : undefined;
       const status =
         live && live.status !== "grounded"
           ? live.status
-          : component && isGrounded({ ...component, specs: effectiveSpecs(component) })
-            ? ("grounded" as const)
+          : component && specs && isGrounded({ ...component, specs })
+            ? specs.powerStates.length > 0
+              ? ("grounded" as const)
+              : ("partial" as const)
             : ("ungrounded" as const);
       return {
         blockId: block.id,

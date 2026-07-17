@@ -9,6 +9,8 @@ import { kicadRoutes } from "./routes/kicad.js";
 import { blockRoutes } from "./routes/blocks.js";
 import { connectionRoutes } from "./routes/connections.js";
 import { findingRoutes } from "./routes/findings.js";
+import { requirementRoutes } from "./routes/requirements.js";
+import { firmwareRoutes } from "./routes/firmware.js";
 import { seedArchetypes, seedRules } from "./services/seed.js";
 
 export interface AppOptions {
@@ -43,6 +45,8 @@ export function buildApp(opts: AppOptions = {}) {
   app.register(blockRoutes, { prefix: "/api" });
   app.register(connectionRoutes, { prefix: "/api" });
   app.register(findingRoutes, { prefix: "/api" });
+  app.register(requirementRoutes, { prefix: "/api" });
+  app.register(firmwareRoutes, { prefix: "/api" });
 
   return app;
 }
