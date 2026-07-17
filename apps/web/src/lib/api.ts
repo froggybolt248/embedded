@@ -7,6 +7,8 @@ import type {
   ComponentCategory,
   Archetype,
   Block,
+  BlockRole,
+  InterfaceKind,
   CreateBlockInput,
   UpdateBlockInput,
   Connection,
@@ -170,6 +172,22 @@ export interface WakeProposal {
   reason: string;
 }
 
+/** A block the assistant proposes; connections reference these by name, not id (ids don't exist yet). */
+export interface ProposedBlock {
+  name: string;
+  role: BlockRole;
+  notes?: string;
+}
+export interface ProposedConnection {
+  from: string;
+  to: string;
+  interface: InterfaceKind;
+}
+export interface ArchitectureProposal {
+  blocks: ProposedBlock[];
+  connections: ProposedConnection[];
+}
+
 /** one generated firmware file — content is the deliverable, never persisted server-side */
 export interface FirmwareFile {
   name: string;
@@ -258,6 +276,16 @@ export const api = {
         method: "POST",
         body: JSON.stringify({}),
       }),
+    /**
+     * LLM assist off the critical path: proposes blocks + connections from the
+     * project's requirements. null is the normal answer when no provider is
+     * configured (or it declined); nothing is created until the user accepts.
+     */
+    architectureProposal: (id: string) =>
+      request<{ proposal: ArchitectureProposal | null }>(
+        `/api/projects/${id}/architecture-proposal`,
+        { method: "POST", body: JSON.stringify({}) },
+      ),
   },
   blocks: {
     list: (projectId: string) => request<Block[]>(`/api/projects/${projectId}/blocks`),

@@ -5,6 +5,7 @@ import type { BlockRole } from "@embedded/core";
 import { api, type BlockGrounding, type GroundingStatus } from "../../lib/api";
 import { ComponentPicker } from "./ComponentPicker";
 import { ConnectionsPanel } from "./ConnectionsPanel";
+import { ArchitectureProposal } from "./ArchitectureProposal";
 import { BringUpPanel } from "./BringUpPanel";
 import { FindingsPanel } from "./FindingsPanel";
 import { FirmwarePanel } from "./FirmwarePanel";
@@ -301,6 +302,8 @@ export function ProjectDetailPage() {
               Add
             </button>
           </form>
+
+          <ArchitectureProposal projectId={projectId} onApplied={invalidate} />
         </section>
 
         <FindingsPanel projectId={projectId} />

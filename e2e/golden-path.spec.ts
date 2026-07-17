@@ -111,4 +111,68 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   await expect(
     powerBudget.getByText(new RegExp(`Environment sensor.*${FIXTURE_MPN}`)),
   ).toBeVisible();
+
+  // --- Requirements: type a requirement, Add it, see it in the list. ---
+  const requirementsSection = page.locator("section", {
+    has: page.getByRole("heading", { name: "Requirements" }),
+  });
+  await requirementsSection
+    .getByPlaceholder(/must sample every 10 minutes/i)
+    .fill("must sample every 10 minutes");
+  await requirementsSection.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(requirementsSection.getByText("must sample every 10 minutes")).toBeVisible();
+
+  // --- Connections: wire MCU to the Environment sensor over i2c (the
+  // default interface option) so firmware generation below has a real
+  // unassigned signal to point its #error at. ---
+  const connectionsSection = page.locator("section", {
+    has: page.getByRole("heading", { name: "Connections" }),
+  });
+  // Scoped by position rather than an accessible label: the form has no
+  // <label>s, just three bare <select>s in from/interface/to order.
+  const selects = connectionsSection.locator("select");
+  await selects.nth(0).selectOption({ label: "MCU" });
+  await selects.nth(2).selectOption({ label: "Environment sensor" });
+  await connectionsSection.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(
+    connectionsSection.getByText(/MCU\s*—i2c→\s*Environment sensor/),
+  ).toBeVisible();
+
+  // --- Firmware: generate, see pins.h and platformio.ini, and confirm the
+  // no-invented-pins #error is shown verbatim (not hidden) since the design
+  // above now has a wired-but-unassigned i2c connection. ---
+  const firmwareSection = page.locator("section", {
+    has: page.getByRole("heading", { name: "Firmware" }),
+  });
+  await firmwareSection.getByRole("button", { name: "Generate files" }).click();
+  const pinsRow = firmwareSection.locator("li").filter({ hasText: "pins.h" });
+  const iniRow = firmwareSection.locator("li").filter({ hasText: "platformio.ini" });
+  await expect(pinsRow).toBeVisible({ timeout: 10_000 });
+  await expect(iniRow).toBeVisible();
+  await pinsRow.getByRole("button").first().click();
+  await expect(pinsRow.getByText(/#error/)).toBeVisible();
+
+  // --- Bring-up: the heading renders and the probe-rs capability line
+  // resolves to either the present-badge or the install card — either is a
+  // pass, since whether the host has probe-rs on PATH is environmental. ---
+  const bringUpSection = page.locator("section", {
+    has: page.getByRole("heading", { name: /Bring-up/ }),
+  });
+  await expect(bringUpSection).toBeVisible();
+  await expect(
+    bringUpSection.getByText(/probe-rs detected|probe-rs not found|Install it from/).first(),
+  ).toBeVisible({ timeout: 10_000 });
+
+  // --- Optimize: the bound, grounded sensor block's power states land here
+  // as estimate rows with a measured-mA input; typing a value and saving
+  // should not crash the panel. ---
+  const optimizeSection = page.locator("section", {
+    has: page.getByRole("heading", { name: "Optimize" }),
+  });
+  await expect(optimizeSection.getByText(/^est\./).first()).toBeVisible({ timeout: 15_000 });
+  const measuredInput = optimizeSection.getByPlaceholder("measured mA").first();
+  await expect(measuredInput).toBeVisible();
+  await measuredInput.fill("0.6");
+  await optimizeSection.getByRole("button", { name: "Save measurements" }).first().click();
+  await expect(measuredInput).toBeVisible();
 });

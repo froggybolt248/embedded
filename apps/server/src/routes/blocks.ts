@@ -6,6 +6,7 @@ import {
   createBlocksRepo,
   createComponentsRepo,
   createProjectsRepo,
+  createRequirementsRepo,
 } from "@embedded/db";
 import {
   DEFAULT_INTERVALS,
@@ -19,6 +20,7 @@ import { createLlmProvider } from "@embedded/llm";
 import { deepenInBackground, groundingState, isGrounded } from "../services/deepen.js";
 import { createPowerService } from "../services/design-power.js";
 import { readLlmSettings } from "../services/llm-settings.js";
+import { proposeArchitecture } from "../services/propose-architecture.js";
 import { proposeWakeInterval } from "../services/wake-proposal.js";
 
 const Duty = z.object({
@@ -70,6 +72,7 @@ export async function blockRoutes(app: FastifyInstance) {
   const blocksRepo = createBlocksRepo(app.db);
   const componentsRepo = createComponentsRepo(app.db);
   const archetypesRepo = createArchetypesRepo(app.db);
+  const requirementsRepo = createRequirementsRepo(app.db);
   // Shared with the findings route so every calculator judges the SAME design
   // from the same grounded currents.
   const { effectiveSpecs, powerTargetOf, buildContributors } = createPowerService(app.db);
@@ -342,6 +345,42 @@ export async function blockRoutes(app: FastifyInstance) {
       projectName: project.name,
       ...(archetype !== undefined ? { archetypeName: archetype.name } : {}),
       blocks,
+    });
+    return { proposal };
+  });
+
+  /**
+   * A starting block/connection diagram, guessed from the project's
+   * Requirements by the LLM — the last M5 assist. Same shape as
+   * `/wake-proposal` and `/requirements/:id/quantify`: this is a PROPOSAL,
+   * never auto-applied. This route does not create any blocks or
+   * connections — accepting individual items is the client's job via the
+   * existing block/connection endpoints. `{ proposal: null }` — no provider,
+   * provider down, schema-invalid — is a normal 200; the LLM must never sit
+   * on the critical path of designing the architecture by hand.
+   */
+  app.post("/projects/:id/architecture-proposal", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const project = projectsRepo.get(id);
+    if (!project) return reply.code(404).send({ error: "project not found" });
+
+    const archetype = project.archetypeId ? archetypesRepo.get(project.archetypeId) : undefined;
+    const requirements = requirementsRepo
+      .listByProject(id)
+      .map((r) => ({ text: r.text, kind: r.kind }));
+
+    let provider;
+    try {
+      const settings = readLlmSettings();
+      provider = createLlmProvider(settings, settings.activeProvider);
+    } catch {
+      // an unconfigured provider is not an error here — it is simply no suggestion
+      return { proposal: null };
+    }
+
+    const proposal = await proposeArchitecture(provider, {
+      requirements,
+      ...(archetype !== undefined ? { archetypeHint: archetype.name } : {}),
     });
     return { proposal };
   });
