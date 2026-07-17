@@ -5,6 +5,7 @@ import type { BlockRole } from "@embedded/core";
 import { api, type BlockGrounding, type GroundingStatus } from "../../lib/api";
 import { ComponentPicker } from "./ComponentPicker";
 import { ConnectionsPanel } from "./ConnectionsPanel";
+import { FindingsPanel } from "./FindingsPanel";
 import { PowerBudgetPanel } from "./PowerBudgetPanel";
 import { WakeCadencePanel } from "./WakeCadencePanel";
 
@@ -108,6 +109,9 @@ export function ProjectDetailPage() {
     qc.invalidateQueries({ queryKey: ["blocks", projectId] });
     qc.invalidateQueries({ queryKey: ["grounding", projectId] });
     qc.invalidateQueries({ queryKey: ["power-budget", projectId] });
+    // findings read the same design — a stale finding about a deleted block
+    // reads exactly like a live one
+    qc.invalidateQueries({ queryKey: ["findings", projectId] });
   };
 
   const addBlock = useMutation({
@@ -135,7 +139,11 @@ export function ProjectDetailPage() {
   const [wasGrounding, setWasGrounding] = useState(false);
   if (stillGrounding !== wasGrounding) {
     setWasGrounding(stillGrounding);
-    if (!stillGrounding) qc.invalidateQueries({ queryKey: ["power-budget", projectId] });
+    if (!stillGrounding) {
+      qc.invalidateQueries({ queryKey: ["power-budget", projectId] });
+      // freshly grounded specs feed the rail/abs-max rules too
+      qc.invalidateQueries({ queryKey: ["findings", projectId] });
+    }
   }
 
   return (
@@ -149,6 +157,7 @@ export function ProjectDetailPage() {
       </p>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+        <div className="flex flex-col gap-4">
         <section className="rounded-lg border border-line bg-surface-1">
           <h2 className="border-b border-line px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-ink-faint">
             Architecture
@@ -282,6 +291,9 @@ export function ProjectDetailPage() {
             </button>
           </form>
         </section>
+
+        <FindingsPanel projectId={projectId} />
+        </div>
 
         <div className="flex flex-col gap-4">
           <PowerBudgetPanel

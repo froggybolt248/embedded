@@ -14,6 +14,7 @@ import type {
   UpdateConnectionInput,
   Datasheet,
   ExtractionRun,
+  Finding,
   PowerMode,
   ValueSource,
 } from "@embedded/core";
@@ -261,6 +262,12 @@ export const api = {
         body: JSON.stringify(input),
       }),
     remove: (id: string) => request<void>(`/api/connections/${id}`, { method: "DELETE" }),
+  },
+  findings: {
+    list: (projectId: string) =>
+      request<{ findings: Finding[] }>(`/api/projects/${projectId}/findings`).then(
+        (body) => body.findings,
+      ),
   },
   components: {
     list: (

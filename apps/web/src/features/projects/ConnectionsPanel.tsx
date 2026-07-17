@@ -49,7 +49,12 @@ export function ConnectionsPanel({ projectId }: { projectId: string }) {
     queryFn: () => api.connections.list(projectId),
   });
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ["connections", projectId] });
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ["connections", projectId] });
+    // the connection-scoped rules (pull-ups, level shift) just gained or lost
+    // their subject — stale findings would report on wiring that no longer exists
+    qc.invalidateQueries({ queryKey: ["findings", projectId] });
+  };
 
   const add = useMutation({
     mutationFn: () =>
