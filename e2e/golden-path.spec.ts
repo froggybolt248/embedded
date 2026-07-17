@@ -75,10 +75,10 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   await expect(page).toHaveURL(/\/projects\/[^/]+$/);
   await expect(page.getByRole("heading", { name: "E2E Coin Cell Sensor" })).toBeVisible();
 
-  // The archetype's suggested blocks were seeded onto the project. Scoped to
-  // the Architecture section: the same block name (e.g. "MCU") also appears
-  // in the Power budget panel's "Not in this estimate" list once blocks are
-  // unbound, which would otherwise make these locators ambiguous.
+  // The archetype's suggested blocks were seeded onto the project and render
+  // as nodes on the Architecture canvas. Scoped to the Architecture section so
+  // the same block names in the Components list / Power budget don't make these
+  // locators ambiguous.
   const architecture = page.locator("section", {
     has: page.getByRole("heading", { name: "Architecture" }),
   });
@@ -86,8 +86,12 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   await expect(architecture.getByText("Environment sensor", { exact: true })).toBeVisible();
   await expect(architecture.getByText("Regulator", { exact: true })).toBeVisible();
 
-  // Bind the fixture component to the "Environment sensor" block.
-  const sensorRow = architecture.locator("li").filter({ hasText: "Environment sensor" });
+  // Binding a real part to a block is the Components phase. Bind the fixture
+  // component to the "Environment sensor" block there.
+  const components = page.locator("section", {
+    has: page.getByRole("heading", { name: "Components" }),
+  });
+  const sensorRow = components.locator("li").filter({ hasText: "Environment sensor" });
   await sensorRow.getByRole("button", { name: "bind a part" }).click();
   await sensorRow.getByPlaceholder(/Search parts/i).fill("E2E-TEST-SENSOR");
   await expect(sensorRow.getByText(FIXTURE_MPN)).toBeVisible({ timeout: 10_000 });

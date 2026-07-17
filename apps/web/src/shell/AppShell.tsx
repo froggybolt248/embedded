@@ -1,37 +1,50 @@
-import { Link, Outlet } from "@tanstack/react-router";
+import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 function NavItem({ to, label, glyph }: { to: string; label: string; glyph: ReactNode }) {
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 rounded-md px-3 py-2 text-sm text-ink-dim hover:bg-surface-2 hover:text-ink transition-colors [&.active]:bg-surface-2 [&.active]:text-accent"
+      title={label}
+      aria-label={label}
+      className="ring-focus group relative flex h-10 w-10 items-center justify-center rounded-lg text-ink-faint transition-colors hover:bg-surface-2 hover:text-ink-dim [&.active]:bg-surface-2 [&.active]:text-accent"
       activeOptions={{ exact: to === "/" }}
     >
-      <span className="w-4 text-center font-mono">{glyph}</span>
-      {label}
+      <span className="font-mono text-base">{glyph}</span>
+      {/* label surfaces on hover — a slim rail stays quiet until asked */}
+      <span className="pointer-events-none absolute left-full ml-2 hidden whitespace-nowrap rounded-md border border-line bg-surface-2 px-2 py-1 text-[11px] text-ink-dim shadow-lg shadow-black/40 group-hover:block">
+        {label}
+      </span>
     </Link>
   );
 }
 
+/**
+ * The frame. Everywhere but inside a project, a slim icon rail carries the
+ * three spaces. On a project route the rail steps aside entirely — the project
+ * brings its own phase rail — so the workspace gets its three clean panes.
+ */
 export function AppShell() {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const inProject = /^\/projects\/[^/]+/.test(pathname);
+
+  if (inProject) {
+    return (
+      <div className="h-full overflow-auto">
+        <Outlet />
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full">
-      <aside className="flex w-52 shrink-0 flex-col border-r border-line bg-surface-1 p-3">
-        <div className="mb-6 flex items-baseline gap-2 px-3 pt-2">
-          <span className="font-mono text-lg font-semibold tracking-tight text-accent">
-            embedded
-          </span>
-          <span className="font-mono text-[10px] text-ink-faint">v0.1</span>
-        </div>
-        <nav className="flex flex-col gap-1">
-          <NavItem to="/" label="Projects" glyph="◧" />
-          <NavItem to="/library" label="Library" glyph="⛁" />
-          <NavItem to="/settings" label="Settings" glyph="⚙" />
-        </nav>
-        <div className="mt-auto px-3 pb-1 font-mono text-[10px] text-ink-faint">
-          local · all data yours
-        </div>
+      <aside className="flex w-14 shrink-0 flex-col items-center gap-1 border-r border-line bg-surface-1 py-3">
+        <Link to="/" title="embedded" className="ring-focus mb-4 flex h-10 w-10 items-center justify-center">
+          <span className="font-mono text-lg font-semibold text-accent">e</span>
+        </Link>
+        <NavItem to="/" label="Projects" glyph="◧" />
+        <NavItem to="/library" label="Library" glyph="⛁" />
+        <NavItem to="/settings" label="Settings" glyph="⚙" />
       </aside>
       <main className="min-w-0 flex-1 overflow-auto">
         <Outlet />

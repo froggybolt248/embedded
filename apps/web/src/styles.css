@@ -1,12 +1,14 @@
 @import "tailwindcss";
 @import "@fontsource-variable/inter";
 @import "@fontsource/jetbrains-mono";
+@import "@xyflow/react/dist/style.css";
 
 @theme {
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* instrument-panel palette: near-black surfaces, one accent */
+  /* instrument-panel palette: near-black surfaces, one accent.
+     This is the app's fixed identity — see DESIGN.md. Do not add hues. */
   --color-surface-0: #0a0b0d;
   --color-surface-1: #111318;
   --color-surface-2: #191c23;
@@ -20,6 +22,19 @@
   --color-warn: #f6ad55;
   --color-danger: #fc8181;
   --color-ok: #68d391;
+
+  /* motion — state, not decoration */
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-fast: 130ms;
+  --dur: 190ms;
+
+  /* semantic z-index scale — never arbitrary 9999 */
+  --z-canvas-ui: 5;
+  --z-sticky: 20;
+  --z-dropdown: 30;
+  --z-popover: 40;
+  --z-toast: 60;
+  --z-tooltip: 70;
 }
 
 html,
@@ -30,9 +45,144 @@ body,
 
 body {
   @apply bg-surface-0 text-ink font-sans antialiased;
+  /* the bench never renders bright-white on a scroll bounce */
+  overscroll-behavior: none;
 }
 
-/* numerics and units always in mono */
+/* numerics and identifiers always in mono, non-jumping columns */
 .num {
   @apply font-mono tabular-nums;
+}
+
+/* one honest selection color */
+::selection {
+  background: color-mix(in oklab, var(--color-accent) 30%, transparent);
+  color: var(--color-ink);
+}
+
+/* focus is always visible — accessibility is not optional. This covers every
+   native control across the app (including panels not built on the primitives),
+   so keyboard users always see where they are; .ring-focus is the same rule for
+   custom elements that opt in explicitly. */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible,
+.ring-focus:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-accent) 70%, transparent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+.ring-focus {
+  outline: none;
+}
+
+/* subtle bench scrollbars — present, never loud */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-surface-3) transparent;
+}
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--color-surface-3);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  border-radius: 999px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--color-line);
+  background-clip: padding-box;
+}
+
+/* first-mount list reveal — a quiet stagger, content visible by default.
+   Enhances; never gates visibility (see DESIGN.md motion rules). */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.rise {
+  animation: rise var(--dur) var(--ease-out) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .rise {
+    animation: none;
+  }
+}
+
+/* ---- React Flow, dissolved into Bench ---------------------------------- */
+.react-flow {
+  --xy-background-color: var(--color-surface-0);
+  --xy-edge-stroke-default: var(--color-line);
+  --xy-edge-stroke-selected: var(--color-accent);
+  --xy-connectionline-stroke-default: var(--color-accent-dim);
+  background: var(--color-surface-0);
+}
+.react-flow__attribution {
+  display: none;
+}
+.react-flow__edge-path {
+  stroke-width: 1.5;
+}
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:hover .react-flow__edge-path {
+  stroke: var(--color-accent);
+}
+.react-flow__edge-text {
+  fill: var(--color-ink-faint);
+  font-family: var(--font-mono);
+  font-size: 9px;
+}
+.react-flow__edge-textbg {
+  fill: var(--color-surface-1);
+}
+.react-flow__handle {
+  width: 7px;
+  height: 7px;
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-line);
+}
+.react-flow__handle:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+.react-flow__controls {
+  box-shadow: none;
+  border: 1px solid var(--color-line);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.react-flow__controls-button {
+  background: var(--color-surface-1);
+  border-bottom: 1px solid var(--color-line);
+  color: var(--color-ink-dim);
+  width: 26px;
+  height: 26px;
+}
+.react-flow__controls-button:hover {
+  background: var(--color-surface-2);
+  color: var(--color-ink);
+}
+.react-flow__controls-button svg {
+  fill: currentColor;
+  max-width: 12px;
+  max-height: 12px;
 }
