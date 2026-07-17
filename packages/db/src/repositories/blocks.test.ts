@@ -59,6 +59,36 @@ describe("blocks duties persistence", () => {
     expect(untouched?.duties).toEqual(duties);
   });
 
+  it("defaults measuredMa to {} when a block is created without any", () => {
+    const block = blocksRepo.create(project.id, { name: "MCU (measured)" });
+    expect(block.measuredMa).toEqual({});
+
+    const fetched = blocksRepo.get(block.id);
+    expect(fetched?.measuredMa).toEqual({});
+  });
+
+  it("round-trips measuredMa through create", () => {
+    const measuredMa = { active: 42.5, sleep: 0.012 };
+    const block = blocksRepo.create(project.id, { name: "Radio (measured)", measuredMa });
+
+    expect(block.measuredMa).toEqual(measuredMa);
+    expect(blocksRepo.get(block.id)?.measuredMa).toEqual(measuredMa);
+  });
+
+  it("round-trips measuredMa through update", () => {
+    const block = blocksRepo.create(project.id, { name: "Sensor (measured)" });
+    expect(block.measuredMa).toEqual({});
+
+    const measuredMa = { active: 18.2 };
+    const updated = blocksRepo.update(block.id, { measuredMa });
+    expect(updated?.measuredMa).toEqual(measuredMa);
+    expect(blocksRepo.get(block.id)?.measuredMa).toEqual(measuredMa);
+
+    // an update that doesn't mention measuredMa leaves the stored value alone
+    const untouched = blocksRepo.update(block.id, { name: "Sensor (measured, renamed)" });
+    expect(untouched?.measuredMa).toEqual(measuredMa);
+  });
+
   it("reads an existing pre-migration-shaped row back as {} rather than throwing", () => {
     // Simulate a row written before `duties` existed conceptually: insert
     // directly via SQL naming every OTHER column, letting the column's own
@@ -75,5 +105,6 @@ describe("blocks duties persistence", () => {
     const fetched = blocksRepo.get("legacy-block-1");
     expect(fetched).toBeDefined();
     expect(fetched?.duties).toEqual({});
+    expect(fetched?.measuredMa).toEqual({});
   });
 });

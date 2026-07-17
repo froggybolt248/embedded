@@ -57,6 +57,14 @@ export const Block = z.object({
   y: z.number().default(0),
   /** The designer's own answer to "how often does this run", per power mode. */
   duties: z.record(z.string(), DutyCycle).default({}),
+  /**
+   * The designer's own MEASURED current per power mode, in mA — keyed by
+   * PowerMode string (not the enum itself, same reasoning as `duties`: a
+   * record survives modes that don't exist yet / component-specific modes).
+   * A missing key means "not measured", never 0 — provenance here is manual,
+   * a designer's claim about what they read off a meter, not a computed value.
+   */
+  measuredMa: z.record(z.string(), z.number()).default({}),
 });
 export type Block = z.infer<typeof Block>;
 
@@ -67,6 +75,7 @@ export const CreateBlockInput = Block.pick({ name: true }).extend({
   x: z.number().optional(),
   y: z.number().optional(),
   duties: z.record(z.string(), DutyCycle).optional(),
+  measuredMa: z.record(z.string(), z.number()).optional(),
 });
 export type CreateBlockInput = z.infer<typeof CreateBlockInput>;
 

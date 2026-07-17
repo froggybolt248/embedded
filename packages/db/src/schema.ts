@@ -86,6 +86,7 @@ export const blocks = sqliteTable("blocks", {
   x: real("x").notNull().default(0),
   y: real("y").notNull().default(0),
   duties: text("duties", { mode: "json" }).notNull().default("{}"),
+  measuredMa: text("measured_ma", { mode: "json" }).notNull().default("{}"),
 });
 
 export const connections = sqliteTable("connections", {

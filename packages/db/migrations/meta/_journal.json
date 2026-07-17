@@ -36,6 +36,13 @@
       "when": 1784302463798,
       "tag": "0004_chunky_changeling",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1784315700781,
+      "tag": "0005_safe_stick",
+      "breakpoints": true
     }
   ]
 }

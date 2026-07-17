@@ -11,6 +11,7 @@ function block(overrides: Partial<Block> & { id: string; name: string }): Block 
     x: 0,
     y: 0,
     duties: {},
+    measuredMa: {},
     ...overrides,
   };
 }

@@ -94,6 +94,41 @@ describe("project blocks and the power budget", () => {
     expect((res.json() as { componentId: string }).componentId).toBe(groundedId);
   });
 
+  it("saves and returns a block's measured currents, keyed by mode", async () => {
+    // its own project, so this stays a plain unbound block and never shows up
+    // as an "ungrounded" surprise in the shared project's later budget assertions
+    const otherProject = await app.inject({
+      method: "POST",
+      url: "/api/projects",
+      payload: { name: "measured-currents scratch project" },
+    });
+    const otherProjectId = (otherProject.json() as { id: string }).id;
+
+    const created = await app.inject({
+      method: "POST",
+      url: `/api/projects/${otherProjectId}/blocks`,
+      payload: { name: "Measured sensor", role: "sensor" },
+    });
+    expect(created.statusCode).toBe(201);
+    const block = created.json() as { id: string; measuredMa: Record<string, number> };
+    expect(block.measuredMa).toEqual({});
+
+    const measuredMa = { active: 12.4, sleep: 0.0009 };
+    const patch = await app.inject({
+      method: "PATCH",
+      url: `/api/blocks/${block.id}`,
+      payload: { measuredMa },
+    });
+    expect(patch.statusCode).toBe(200);
+    expect((patch.json() as { measuredMa: Record<string, number> }).measuredMa).toEqual(measuredMa);
+
+    const get = await app.inject({ method: "GET", url: `/api/projects/${otherProjectId}/blocks` });
+    const fetched = (get.json() as Array<{ id: string; measuredMa: Record<string, number> }>).find(
+      (b) => b.id === block.id,
+    );
+    expect(fetched?.measuredMa).toEqual(measuredMa);
+  });
+
   const budgetFor = async (payload: Record<string, unknown> = {}) => {
     const res = await app.inject({
       method: "POST",

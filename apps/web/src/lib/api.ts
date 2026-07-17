@@ -177,6 +177,15 @@ export interface FirmwareFile {
   content: string;
 }
 
+/**
+ * What optional external tools the host machine actually has. Every one is
+ * false-by-default and no feature hard-requires it — the UI gates affordances
+ * on these, never assumes them.
+ */
+export interface Capabilities {
+  probeRs: { present: boolean; version?: string; detail?: string };
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     headers: { "content-type": "application/json" },
@@ -304,6 +313,9 @@ export const api = {
   firmware: {
     generate: (projectId: string) =>
       request<{ files: FirmwareFile[] }>(`/api/projects/${projectId}/firmware`),
+  },
+  capabilities: {
+    get: () => request<Capabilities>("/api/capabilities"),
   },
   findings: {
     list: (projectId: string) =>

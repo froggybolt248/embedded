@@ -32,7 +32,25 @@
           "Measure sleep current before anything else — it decides the lifetime",
           "Confirm the sensor actually returns to sleep after a reading"
         ]
-      }
+      },
+      "bringUpChecklist": [
+        {
+          "text": "Power the board from a bench supply set to the coin-cell voltage and confirm quiescent current matches the budget",
+          "hint": "A bench supply lets you read current directly; a coin cell does not."
+        },
+        {
+          "text": "Confirm the MCU enumerates on the debug probe",
+          "hint": "If the probe cannot see the chip, nothing downstream of this matters yet."
+        },
+        {
+          "text": "Blink an LED before trusting any peripheral",
+          "hint": "Proves the toolchain, the flash, and the clock are all working before you debug a sensor on top of them."
+        },
+        {
+          "text": "Measure sleep current with a multimeter in series, not just estimated from the datasheet",
+          "hint": "The datasheet number is a best case; board leakage and unused pins routinely add microamps that decide the lifetime."
+        }
+      ]
     }
   },
   {
@@ -71,7 +89,29 @@
           "Never power the radio without an antenna or a 50 Ω load attached",
           "Check the rail with a scope during TX, not just a multimeter"
         ]
-      }
+      },
+      "bringUpChecklist": [
+        {
+          "text": "Power the board from a bench supply and confirm quiescent current before the first TX",
+          "hint": "Establishes the resting current so a later TX spike is measured against a known baseline."
+        },
+        {
+          "text": "Confirm the MCU enumerates on the debug probe",
+          "hint": "If the probe cannot see the chip, nothing downstream of this matters yet."
+        },
+        {
+          "text": "Blink an LED before trusting any peripheral",
+          "hint": "Proves the toolchain, the flash, and the clock are all working before you debug the radio on top of them."
+        },
+        {
+          "text": "Attach an antenna or a 50 ohm dummy load before ever keying the radio",
+          "hint": "Transmitting into an open SPI/RF pin with no load can damage the power amplifier immediately."
+        },
+        {
+          "text": "Watch the rail on a scope during a TX burst, not just a multimeter",
+          "hint": "A multimeter averages the reading away; the sag that browns out the MCU only shows up on a scope."
+        }
+      ]
     }
   },
   {

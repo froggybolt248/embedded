@@ -5,8 +5,10 @@ import type { BlockRole } from "@embedded/core";
 import { api, type BlockGrounding, type GroundingStatus } from "../../lib/api";
 import { ComponentPicker } from "./ComponentPicker";
 import { ConnectionsPanel } from "./ConnectionsPanel";
+import { BringUpPanel } from "./BringUpPanel";
 import { FindingsPanel } from "./FindingsPanel";
 import { FirmwarePanel } from "./FirmwarePanel";
+import { OptimizePanel } from "./OptimizePanel";
 import { PowerBudgetPanel } from "./PowerBudgetPanel";
 import { RequirementsPanel } from "./RequirementsPanel";
 import { WakeCadencePanel } from "./WakeCadencePanel";
@@ -313,6 +315,11 @@ export function ProjectDetailPage() {
           <WakeCadencePanel projectId={projectId} capacityOverride={capacityOverride} />
           <ConnectionsPanel projectId={projectId} />
           <FirmwarePanel projectId={projectId} />
+          <BringUpPanel
+            projectId={projectId}
+            {...(project?.archetypeId ? { archetypeId: project.archetypeId } : {})}
+          />
+          <OptimizePanel projectId={projectId} />
         </div>
       </div>
     </div>

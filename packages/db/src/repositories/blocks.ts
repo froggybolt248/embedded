@@ -8,6 +8,7 @@ function rowToBlock(row: typeof blocks.$inferSelect): Block {
   return Block.parse({
     ...row,
     duties: typeof row.duties === "string" ? JSON.parse(row.duties) : row.duties,
+    measuredMa: typeof row.measuredMa === "string" ? JSON.parse(row.measuredMa) : row.measuredMa,
   });
 }
 
@@ -34,6 +35,7 @@ export function createBlocksRepo(db: Db) {
         x: parsed.x ?? 0,
         y: parsed.y ?? 0,
         duties: parsed.duties ?? {},
+        measuredMa: parsed.measuredMa ?? {},
       };
       db.insert(blocks).values(row).run();
       return rowToBlock(row as typeof blocks.$inferSelect);
@@ -52,6 +54,7 @@ export function createBlocksRepo(db: Db) {
       if (parsed.x !== undefined) patch.x = parsed.x;
       if (parsed.y !== undefined) patch.y = parsed.y;
       if (parsed.duties !== undefined) patch.duties = parsed.duties;
+      if (parsed.measuredMa !== undefined) patch.measuredMa = parsed.measuredMa;
 
       if (Object.keys(patch).length > 0) {
         db.update(blocks).set(patch).where(eq(blocks.id, id)).run();

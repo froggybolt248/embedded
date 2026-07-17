@@ -59,6 +59,9 @@ describe("grounding state survives a restart on the same data dir", () => {
     rmSync(dataDir, { recursive: true, force: true, maxRetries: 3, retryDelay: 100 });
   });
 
+  // Rebuilds the whole app twice (fresh migrate + seed each time) around a real
+  // fetch attempt — comfortably under 5s alone, but it can brush vitest's default
+  // timeout when the whole suite runs in parallel, so give it explicit headroom.
   it("keeps a failed part's status and error message after closing and rebuilding the app", async () => {
     app = buildApp();
     await app.ready();
@@ -119,7 +122,7 @@ describe("grounding state survives a restart on the same data dir", () => {
     const row = await waitForSettled(app, projectId, componentId);
     expect(row.status).toBe("failed");
     expect(row.error).toBeTruthy();
-  });
+  }, 20000);
 
   it("keeps an unavailable part's status after a restart", async () => {
     // Rebuild fresh so this test doesn't depend on the previous one's app instance.
@@ -151,5 +154,5 @@ describe("grounding state survives a restart on the same data dir", () => {
     const after = groundingState(app.db, componentId);
     expect(after?.status).toBe("unavailable");
     expect(after?.detail).toBe(before?.detail);
-  });
+  }, 20000);
 });

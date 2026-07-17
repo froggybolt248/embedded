@@ -1,0 +1,1 @@
+ALTER TABLE `blocks` ADD `measured_ma` text DEFAULT '{}' NOT NULL;

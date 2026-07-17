@@ -162,6 +162,18 @@ export const SuggestedBlock = z.object({
 });
 export type SuggestedBlock = z.infer<typeof SuggestedBlock>;
 
+/**
+ * One step in the Bring-up phase checklist — the archetype-specific "what to
+ * check before you trust this board" list, distinct from the plain-string
+ * `phaseChecklists.bringup` above because a bring-up step earns a `hint`: the
+ * one-line WHY, same teaching surface as `SuggestedBlock.hint`.
+ */
+export const BringUpStep = z.object({
+  text: z.string(),
+  hint: z.string().optional(),
+});
+export type BringUpStep = z.infer<typeof BringUpStep>;
+
 /** The quantified goal the archetype exists to hit, checkable against a budget. */
 export const PowerTarget = z.object({
   batteryCapacityMah: z.number().positive(),
@@ -184,6 +196,13 @@ export const Archetype = z.object({
       calculatorIds: z.array(z.string()).default([]),
       /** per-phase checklists, e.g. bringup: ["verify 3V3 before MCU", …] */
       phaseChecklists: z.record(z.array(z.string())).default({}),
+      /**
+       * The Bring-up phase checklist, richer than `phaseChecklists.bringup`:
+       * each step can carry a `hint` explaining why it matters. Optional —
+       * an archetype with no bring-up steps just renders no checklist, not a
+       * broken one.
+       */
+      bringUpChecklist: z.array(BringUpStep).optional(),
     })
     .default({}),
   createdAt: z.string(),
