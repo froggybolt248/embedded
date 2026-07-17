@@ -55,13 +55,19 @@ import { triageFromOutline, triageFromText } from "./triage.js";
  *       Peak (mA)" is found at all; section headings and body prose below a
  *       table are cut by the left margin; footnote markers printed as detached
  *       superscripts (Espressif) end a table like any other footnote
+ * - d7: multi-row table headers are merged before header detection, so a
+ *       header split across physical lines ("Typ" / "CPU Frequency" / "Mode |
+ *       Description" / "Wi-Fi RX Disabled (mA) | Wi-Fi RX Enabled (mA)") is
+ *       still recognised as one header; light-sleep buckets to `standby`
+ *       rather than `sleep`; dB/dBm rows (RF sensitivity) are dropped instead
+ *       of minting junk recommendedOperating params
  *
  * Bump rather than redefine. A version already written to an ExtractionRun is a
  * claim about how those rows were produced, and rows stamped d3 exist; making d3
  * mean something else retroactively would both falsify that audit trail and
  * leave the parts it names looking current, so the fix never reaches them.
  */
-export const EXTRACTOR_VERSION = "d6";
+export const EXTRACTOR_VERSION = "d7";
 
 /** ExtractionRun.model for a Tier 0+1 run, carrying the version that produced it. */
 export const DETERMINISTIC_MODEL = `deterministic@${EXTRACTOR_VERSION}`;
@@ -419,10 +425,27 @@ export function fillMergedCells(rows: TableRow[], roles: ColumnRoles): TableRow[
 
 // ---- row → typed field ----------------------------------------------------
 
+/**
+ * dB and dBm rows are RF performance figures (sensitivity, gain, insertion
+ * loss), not electrical ratings — the SX126x/SX1276-class datasheets print an
+ * RF sensitivity table right where a recommended-operating table would sit,
+ * and its condition text ("split RF paths for RX and TX, RF switch insertion
+ * loss excluded") has no symbol, so it fell through to the row's first text
+ * cell and minted a junk param ("split-rf-paths-for-rx-and-tx…") with recOp=43
+ * — the dBm value read as if it were a voltage or current rating.
+ *
+ * RF performance modeling is a future feature; a dropped row here is the
+ * honest outcome until that exists, versus a fabricated electrical param now.
+ */
+function isRfUnit(unit: string): boolean {
+  return /^dbm?$/i.test(unit);
+}
+
 function ratedRow(cells: string[], roles: ColumnRoles, page: number): ExtractedRatedParam | null {
   const rawUnit = textAt(cells, roles.unit);
   if (rawUnit === undefined) return null; // no unit column → not a rated-param row we can trust
   const unit = normalizeUnit(rawUnit);
+  if (isRfUnit(unit)) return null;
 
   let min = numAt(cells, roles.min);
   let typ = numAt(cells, roles.typ);

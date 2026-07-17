@@ -76,6 +76,22 @@ describe("canonicalPowerState", () => {
   it("returns null for text that names no operating mode", () => {
     expect(canonicalPowerState("Power supply rejection ratio")).toBeNull();
   });
+
+  it.each([
+    ["Light-sleep", "standby"],
+    ["Light sleep current", "standby"],
+    ["Deep-sleep", "sleep"],
+    ["Deep sleep current", "sleep"],
+    ["Hibernation current", "sleep"],
+    ["Power-off current", "sleep"],
+    ["Power off", "sleep"],
+    ["Sleep current", "sleep"],
+  ])(
+    "splits sleep-family wording %s into mode %s — a light-sleep row is the part idling, a deep-sleep row is the part switched off",
+    (text, mode) => {
+      expect(canonicalPowerState(text)).toBe(mode);
+    },
+  );
 });
 
 describe("looksLikeCurrent", () => {

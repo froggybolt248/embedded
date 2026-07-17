@@ -152,6 +152,21 @@ export const archetypes = sqliteTable("archetypes", {
   updatedAt: text("updated_at").notNull(),
 });
 
+/**
+ * Persisted grounding state per component (see apps/server/src/services/deepen.ts).
+ * The in-memory map there is a hot-path cache; this table is the source of
+ * truth so a server restart doesn't lose WHY a part failed to ground.
+ */
+export const groundingStates = sqliteTable("grounding_states", {
+  componentId: text("component_id")
+    .primaryKey()
+    .references(() => components.id, { onDelete: "cascade" }),
+  status: text("status").notNull(),
+  detail: text("detail"),
+  error: text("error"),
+  updatedAt: text("updated_at").notNull(),
+});
+
 export const firmwareArtifacts = sqliteTable("firmware_artifacts", {
   id: text("id").primaryKey(),
   projectId: text("project_id")

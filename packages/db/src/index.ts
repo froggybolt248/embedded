@@ -16,3 +16,8 @@ export {
 } from "./repositories/datasheets.js";
 export { createRulesRepo } from "./repositories/rules.js";
 export { createCalculatorsRepo, createCalculatorRunsRepo } from "./repositories/calculators.js";
+export {
+  createGroundingStatesRepo,
+  type GroundingStateRow,
+  type UpsertGroundingStateInput,
+} from "./repositories/grounding-states.js";

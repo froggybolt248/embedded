@@ -6,7 +6,9 @@ import { api, type BlockGrounding, type GroundingStatus } from "../../lib/api";
 import { ComponentPicker } from "./ComponentPicker";
 import { ConnectionsPanel } from "./ConnectionsPanel";
 import { FindingsPanel } from "./FindingsPanel";
+import { FirmwarePanel } from "./FirmwarePanel";
 import { PowerBudgetPanel } from "./PowerBudgetPanel";
+import { RequirementsPanel } from "./RequirementsPanel";
 import { WakeCadencePanel } from "./WakeCadencePanel";
 
 const ROLES: BlockRole[] = ["mcu", "sensor", "radio", "power", "actuator", "display", "other"];
@@ -163,6 +165,8 @@ export function ProjectDetailPage() {
 
       <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
         <div className="flex flex-col gap-4">
+        {/* Scope comes before Architecture: what must it do, then what is it */}
+        <RequirementsPanel projectId={projectId} />
         <section className="rounded-lg border border-line bg-surface-1">
           <h2 className="border-b border-line px-4 py-2.5 text-[11px] font-semibold uppercase tracking-wide text-ink-faint">
             Architecture
@@ -308,6 +312,7 @@ export function ProjectDetailPage() {
           />
           <WakeCadencePanel projectId={projectId} capacityOverride={capacityOverride} />
           <ConnectionsPanel projectId={projectId} />
+          <FirmwarePanel projectId={projectId} />
         </div>
       </div>
     </div>

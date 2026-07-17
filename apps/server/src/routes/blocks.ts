@@ -127,7 +127,7 @@ export async function blockRoutes(app: FastifyInstance) {
         return { blockId: block.id, componentId: null, status: "unbound" as const };
       }
       const component = componentsRepo.get(block.componentId);
-      const live = groundingState(block.componentId);
+      const live = groundingState(app.db, block.componentId);
       // Grounding is not binary and pretending it is was a bug: a part with
       // ratings but no current table IS grounded for the rail checks and is
       // NOT for the power budget. One green dot next to a budget that says

@@ -230,7 +230,13 @@ export function resolveSpecs(
 function rangeSources(range: SourcedRange): ValueSource[] {
   return [range.min, range.typ, range.max]
     .filter((v): v is SourcedValue => v !== undefined)
-    .map((v) => v.source);
+    .map((v) => v.source)
+    .filter((s): s is ValueSource => s !== undefined);
+}
+
+/** True when a range carries no min/typ/max value at all — no data to attribute. */
+function hasNumericValue(range: SourcedRange): boolean {
+  return range.min !== undefined || range.typ !== undefined || range.max !== undefined;
 }
 
 /**
@@ -253,6 +259,15 @@ function rangeSources(range: SourcedRange): ValueSource[] {
  * anything the extractor has to say and is never superseded by it — that is the
  * whole point of the trust ladder. Rows sourced from elsewhere (a KiCad import,
  * a hand-entered measurement, another datasheet) are untouched.
+ *
+ * PowerStates get one extra pass: a row whose `current` carries no min/typ/max
+ * value at all has nothing to attribute to any datasheet, so the ordinary
+ * "superseded" check (which keys off sources) never fires for it and it would
+ * otherwise survive every supersede forever — a husk that renders as a power
+ * state with no data (e.g. the SX1262's "(NSS, MOSI, SCK) — -"). Such husks are
+ * dropped unconditionally. A row that DOES carry a real numeric value is never
+ * dropped by this pass, even if that value is somehow missing a source — only
+ * the ordinary supersede-by-source check can remove a row with real data.
  */
 export function supersedeExtracted(specs: ComponentSpecs, datasheetId: string): ComponentSpecs {
   const superseded = (sources: ValueSource[]): boolean =>
@@ -268,7 +283,9 @@ export function supersedeExtracted(specs: ComponentSpecs, datasheetId: string): 
     ...specs,
     absoluteMax: keepRated(specs.absoluteMax),
     recommendedOperating: keepRated(specs.recommendedOperating),
-    powerStates: specs.powerStates.filter((r) => !superseded(rangeSources(r.current))),
+    powerStates: specs.powerStates.filter(
+      (r) => hasNumericValue(r.current) && !superseded(rangeSources(r.current)),
+    ),
     decoupling: specs.decoupling.filter(
       (d) => !(d.value !== undefined && superseded([d.value.source])),
     ),

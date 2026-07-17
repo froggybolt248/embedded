@@ -104,7 +104,16 @@ export function canonicalParam(opts: { symbol?: string | undefined; label?: stri
  * as the row name and stores this alongside it.
  */
 const POWER_STATE: Array<{ pattern: RegExp; mode: PowerMode }> = [
-  { pattern: /sleep|shutdown/i, mode: "sleep" },
+  // "Light-sleep" retains state and wakes fast — it is the part idling, not
+  // powered down, so it buckets with standby. It must be checked before the
+  // general sleep/shutdown rule below, or the word "sleep" in "light-sleep"
+  // would win first and it would collapse into the same bucket as deep-sleep.
+  // Plain "sleep" (no light/deep qualifier) still falls through to `sleep`.
+  { pattern: /light[-\s]?sleep/i, mode: "standby" },
+  // Deep-sleep, hibernation, shutdown and power-off are all "switched off":
+  // deep-sleep matches here via the bare "sleep" in its name once light-sleep
+  // has already been excluded above.
+  { pattern: /sleep|shutdown|hibernat|power[-\s]?off/i, mode: "sleep" },
   // "stdby" is Semtech's spelling, and theirs is the only wording on the row:
   // the SX1262's standby states are named STDBY_RC and STDBY_XOSC and never
   // spelled out, so matching only "standby" leaves a radio's standby current

@@ -91,6 +91,7 @@ export const ConnectionAttrs = z.object({
   /** reserved for pin-level deepening + KiCad export */
   pinMap: z.record(z.string()).optional(),
 });
+export type ConnectionAttrs = z.infer<typeof ConnectionAttrs>;
 
 export const Connection = z.object({
   id: z.string(),

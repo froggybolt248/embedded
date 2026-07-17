@@ -1,10 +1,7 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { InterfaceKind, type Connection } from "@embedded/core";
+import { InterfaceKind, type Connection, type ConnectionAttrs } from "@embedded/core";
 import { api } from "../../lib/api";
-
-/** design.ts exports `ConnectionAttrs` only as a zod schema const, not a type. */
-type ConnectionAttrs = Connection["attrs"];
 
 const INTERFACES: InterfaceKind[] = InterfaceKind.options;
 

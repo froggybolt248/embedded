@@ -236,6 +236,125 @@ function isHeaderRow(row: Row): boolean {
 }
 
 /**
+ * How many extra physical rows a header band may absorb in either direction
+ * beyond the row `isHeaderRow` itself flags. Mirrors `fillMergedCells`'
+ * MERGE_REACH: bounded so a run of short, ambiguous rows several lines away
+ * cannot be swallowed wholesale — a real multi-row header sits immediately
+ * against its anchor line, not several lines off.
+ */
+const HEADER_BAND_REACH = 3;
+
+/**
+ * A header-continuation row carries at most this many filled cells. Real data
+ * rows — even sparse ones with a merged label — tend to carry more than this;
+ * it is what keeps an ordering table's first row (one MPN cell, no digits-only
+ * token) from being mistaken for a header fragment merely because it is
+ * non-numeric. The rows this exists to catch genuinely are this sparse:
+ * ESP32-C3 p57 Table 5-8 splits its header across "Typ" (1 cell), "CPU
+ * Frequency" (1 cell), and "Disabled (mA) | Enabled (mA)" (2 cells).
+ */
+const HEADER_BAND_MAX_ITEMS = 2;
+
+/**
+ * Does this row look like more header, rather than the table's first data
+ * row? Non-numeric and short, OR a lone footnote-style marker riding on a
+ * header cell (Espressif superscripts a footnote directly onto "Enabled
+ * (mA)" as its own detached run, which parses as a bare number but is not a
+ * value in any column).
+ */
+function isHeaderContinuationCandidate(row: Row, anchorSpan: number): boolean {
+  if (row.items.length === 0 || row.items.length > HEADER_BAND_MAX_ITEMS) return false;
+  const allNonNumeric = row.items.every((it) => {
+    const v = parseCell(it.str.trim());
+    return v.kind !== "number" && v.kind !== "plusminus";
+  });
+  if (allNonNumeric) return true;
+  const only = row.items[0] as PositionedText;
+  return (
+    row.items.length === 1 &&
+    BARE_FOOTNOTE_MARKER.test(only.str.trim()) &&
+    only.width < 0.1 * anchorSpan
+  );
+}
+
+/**
+ * Merges a multi-physical-row header into one logical header row before
+ * header detection runs the rest of its course.
+ *
+ * `isHeaderRow` requires two distinct header words in a SINGLE row, but a
+ * datasheet is free to split its column titles across several short lines —
+ * ESP32-C3 p57 prints "Typ" / "CPU Frequency" / "Mode | Description | All
+ * Peripherals Clocks ×2" / "(MHz)" / a detached footnote "1" / "Disabled (mA)
+ * | Enabled (mA)" as five separate physical rows, only one of which ("Mode |
+ * Description…") carries two recognised words. Read row-by-row, none of the
+ * others are usable as a header and the table's own current values (23/28/
+ * 16/21 mA) have no unit to be read against, so the whole table is silently
+ * dropped downstream — the part grounds with no active-current data despite
+ * the numbers sitting right there in the text layer.
+ *
+ * Absorption is deliberately narrow and one-directional-safe: a candidate row
+ * joins the band only while it is short (`HEADER_BAND_MAX_ITEMS`), carries no
+ * real value, sits within one text line's gap of the band's growing edge, and
+ * the reach is bounded. That is what keeps this from ever pulling a genuine
+ * data row upward into the header — the very first real data row on p57 ("CPU
+ * is running", 23, 28) has three filled cells and two of them are numbers, so
+ * it fails every one of those tests and the band stops one row above it.
+ *
+ * Runs BEFORE header detection assigns `headerIdx`, so downstream code (band
+ * voting, column classification) sees one row exactly like a page whose
+ * vendor happened to print all of that on one physical line — no change to
+ * anything past this point.
+ */
+function mergeHeaderBands(rows: Row[], medianLineHeight: number): Row[] {
+  const merged: Row[] = [];
+  let i = 0;
+  while (i < rows.length) {
+    const row = rows[i] as Row;
+    if (!isHeaderRow(row)) {
+      merged.push(row);
+      i++;
+      continue;
+    }
+
+    const anchorSpan = rowSpan(row);
+    let items = [...row.items];
+    let topY = row.y;
+
+    // absorb short, non-numeric rows immediately above — already pushed to
+    // `merged`, since this is a single forward pass over `rows`
+    let upReach = 0;
+    while (merged.length > 0 && upReach < HEADER_BAND_REACH) {
+      const prev = merged[merged.length - 1] as Row;
+      const gap = prev.y - topY;
+      if (gap > 1.5 * medianLineHeight || !isHeaderContinuationCandidate(prev, anchorSpan)) break;
+      merged.pop();
+      items = [...prev.items, ...items];
+      topY = prev.y;
+      upReach++;
+    }
+
+    // absorb short, non-numeric rows immediately below, stopping at the
+    // first row that looks like real data
+    let bottomY = row.y;
+    let j = i + 1;
+    let downReach = 0;
+    while (j < rows.length && downReach < HEADER_BAND_REACH) {
+      const next = rows[j] as Row;
+      const gap = bottomY - next.y;
+      if (gap > 1.5 * medianLineHeight || !isHeaderContinuationCandidate(next, anchorSpan)) break;
+      items = [...items, ...next.items];
+      bottomY = next.y;
+      j++;
+      downReach++;
+    }
+
+    merged.push({ y: bottomY, items });
+    i = j;
+  }
+  return merged;
+}
+
+/**
  * Column-band detection by gutter-occupancy voting.
  *
  * Two opposite failure modes rule out any single-pass projection: (1) a wide
@@ -530,7 +649,7 @@ export function extractTables(
   if (filtered.length === 0) return [];
 
   const medianLineHeight = median(filtered.map((it) => it.height));
-  const rows = groupRows(filtered, rowTolerance, medianLineHeight);
+  const rows = mergeHeaderBands(groupRows(filtered, rowTolerance, medianLineHeight), medianLineHeight);
 
   const headerIdx: number[] = [];
   rows.forEach((r, i) => {

@@ -48,14 +48,15 @@ export function createPowerService(db: Db) {
   }
 
   /**
-   * Why a bound part contributes nothing. The live grounding state is the best
-   * answer while the process is up, but it is in-memory: after a restart a part
-   * that failed on a dead vendor link looks identical to one nobody ever tried.
+   * Why a bound part contributes nothing. `groundingState` reads the in-memory
+   * hot path first and falls back to the persisted `grounding_states` row, so
+   * a part that failed on a dead vendor link keeps reporting that reason
+   * across a restart rather than looking identical to one nobody ever tried.
    * Falling back to "no current data in this part's datasheet" would then claim
    * we read a datasheet we never fetched, so distinguish the cases honestly.
    */
   function ungroundedReason(component: Component): string {
-    const live = groundingState(component.id);
+    const live = groundingState(db, component.id);
     if (live?.status === "grounding") return "reading its datasheet now";
     if (live?.error) return live.error;
 

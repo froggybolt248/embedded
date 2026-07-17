@@ -29,6 +29,13 @@
       "when": 1784285278248,
       "tag": "0003_simple_jubilee",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1784302463798,
+      "tag": "0004_chunky_changeling",
+      "breakpoints": true
     }
   ]
 }

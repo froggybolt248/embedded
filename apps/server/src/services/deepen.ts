@@ -5,6 +5,7 @@ import {
   createComponentsRepo,
   createDatasheetsRepo,
   createExtractionRunsRepo,
+  createGroundingStatesRepo,
   datasheetsDir,
   type Db,
 } from "@embedded/db";
@@ -49,15 +50,44 @@ export interface GroundingState {
   updatedAt: string;
 }
 
-/** in-memory: grounding is re-derivable, and a restart should just retry */
+/**
+ * In-memory hot path: grounding is re-derivable, so a restart could just
+ * retry — but a part that FAILED (dead link, image-only PDF, 403 from the
+ * vendor) may not get retried for a long time, and losing WHY it failed
+ * leaves the UI with nothing useful to show. `grounding_states` is the
+ * source of truth for that; this map only avoids a DB round trip on the
+ * common path (read right after a write, same process).
+ */
 const states = new Map<string, GroundingState>();
 
-function setState(componentId: string, state: Omit<GroundingState, "updatedAt">): void {
-  states.set(componentId, { ...state, updatedAt: new Date().toISOString() });
+function setState(db: Db, componentId: string, state: Omit<GroundingState, "updatedAt">): void {
+  const updatedAt = new Date().toISOString();
+  states.set(componentId, { ...state, updatedAt });
+  createGroundingStatesRepo(db).upsert(componentId, {
+    status: state.status,
+    detail: state.detail,
+    error: state.error ?? null,
+    updatedAt,
+  });
 }
 
-export function groundingState(componentId: string): GroundingState | undefined {
-  return states.get(componentId);
+/**
+ * Reads the hot path first; falls back to the persisted row so a restarted
+ * server still reports the last known status and, crucially, the last
+ * failure reason — not silently nothing.
+ */
+export function groundingState(db: Db, componentId: string): GroundingState | undefined {
+  const live = states.get(componentId);
+  if (live) return live;
+
+  const row = createGroundingStatesRepo(db).get(componentId);
+  if (!row) return undefined;
+  return {
+    status: row.status as GroundingStatus,
+    detail: row.detail ?? "",
+    ...(row.error !== null ? { error: row.error } : {}),
+    updatedAt: row.updatedAt,
+  };
 }
 
 /** A part is grounded once it carries the electrical layer KiCad cannot give. */
@@ -132,7 +162,7 @@ export async function deepenComponent(db: Db, componentId: string): Promise<Deep
   const staleExtractor =
     priorRuns.length > 0 && !priorRuns.some((run) => run.model === DETERMINISTIC_MODEL);
   if (isGrounded(component) && !staleExtractor) {
-    setState(componentId, { status: "grounded", detail: "already grounded" });
+    setState(db, componentId, { status: "grounded", detail: "already grounded" });
     return { status: "grounded" };
   }
 
@@ -150,14 +180,14 @@ export async function deepenComponent(db: Db, componentId: string): Promise<Deep
   // would tell the user a part they can see specs for has none.
   if (!url && !cached) {
     if (isGrounded(component)) {
-      setState(componentId, { status: "grounded", detail: "already grounded" });
+      setState(db, componentId, { status: "grounded", detail: "already grounded" });
       return { status: "grounded" };
     }
-    setState(componentId, { status: "unavailable", detail: "no datasheet URL on this part" });
+    setState(db, componentId, { status: "unavailable", detail: "no datasheet URL on this part" });
     return { status: "unavailable", reason: "no datasheet URL" };
   }
 
-  setState(componentId, {
+  setState(db, componentId, {
     status: "grounding",
     detail: cached ? "re-reading datasheet" : "fetching datasheet",
   });
@@ -180,10 +210,10 @@ export async function deepenComponent(db: Db, componentId: string): Promise<Deep
     // same invariant: a failed re-read of an already-grounded part is a no-op,
     // not a failure to report — the specs the user can see are still there
     if (isGrounded(component)) {
-      setState(componentId, { status: "grounded", detail: "already grounded" });
+      setState(db, componentId, { status: "grounded", detail: "already grounded" });
       return { status: "grounded" };
     }
-    setState(componentId, { status: "failed", detail: "grounding failed", error: message });
+    setState(db, componentId, { status: "failed", detail: "grounding failed", error: message });
     return { status: "failed", reason: message };
   }
 }
@@ -222,7 +252,7 @@ export async function groundFromBytes(
   const filePath = join(datasheetsDir(), `${sha256}.pdf`);
   if (!existsSync(filePath)) writeFileSync(filePath, bytes);
 
-  setState(componentId, { status: "grounding", detail: "reading datasheet" });
+  setState(db, componentId, { status: "grounding", detail: "reading datasheet" });
   const pdf = await LoadedPdf.open(new Uint8Array(bytes));
   try {
     datasheet ??= dsRepo.create({
@@ -261,23 +291,32 @@ export async function groundFromBytes(
 
     const grounded = isGrounded({ ...component, specs: merged });
     if (!grounded) {
-      setState(componentId, {
+      setState(db, componentId, {
         status: "unavailable",
         detail: "datasheet had no machine-readable spec tables",
       });
       return { status: "unavailable", reason: "no extractable tables" };
     }
-    setState(componentId, { status: "grounded", detail: "grounded from datasheet" });
+    setState(db, componentId, { status: "grounded", detail: "grounded from datasheet" });
     return { status: "grounded" };
   } finally {
     await pdf.close();
   }
 }
 
-/** Fire-and-forget form for the bind path — the state map carries the outcome. */
+/**
+ * Fire-and-forget form for the bind path — the state map carries the outcome.
+ *
+ * The re-entrancy guard deliberately checks the in-memory map only, not the
+ * persisted row: it exists to dedupe a part already grounding IN THIS
+ * PROCESS, not to reflect history across a restart. A "grounding" row left
+ * behind by a process that died mid-run must not wedge that part forever —
+ * a fresh process has no in-flight work for it, so a new bind must be free
+ * to kick a new attempt.
+ */
 export function deepenInBackground(db: Db, componentId: string): void {
   if (states.get(componentId)?.status === "grounding") return;
-  setState(componentId, { status: "grounding", detail: "queued" });
+  setState(db, componentId, { status: "grounding", detail: "queued" });
   void deepenComponent(db, componentId);
 }
 

@@ -23,8 +23,8 @@
         {
           "name": "Regulator",
           "role": "power",
-          "hint": "Quiescent current flows 24/7 — on a coin cell a sloppy LDO can outdraw the MCU.",
-          "pick": { "q": "regulator LDO", "category": "power", "prefer": ["AP2112K-3.3"] }
+          "hint": "The regulator's quiescent current flows 24/7 — it is the floor under everything. A 55 uA LDO alone caps a 220 mAh coin cell at ~5 months; this design needs roughly 1 uA of quiescent draw or none (run direct from the cell if the parts allow it).",
+          "pick": { "q": "low quiescent LDO", "category": "power", "prefer": [] }
         }
       ],
       "phaseChecklists": {

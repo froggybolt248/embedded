@@ -83,10 +83,34 @@ describe("supersedeExtracted", () => {
     expect(kept.recommendedOperating).toHaveLength(0);
   });
 
-  it("keeps a row with no sourced values at all rather than silently dropping it", () => {
+  it("drops a husk row that has no numeric value and no sources — it is not evidence", () => {
+    // Real-world shape: a stale PowerState surviving supersede with an empty
+    // `current: {}` and no sources renders as a power state with no data
+    // (e.g. the SX1262's "(NSS, MOSI, SCK) — -"). Before the fix, `superseded`
+    // requires sources.length > 0, so a sourceless husk like this was never
+    // superseded and survived every re-read forever.
     const existing = ComponentSpecs.parse({
       powerStates: [{ name: "placeholder", current: {} }],
     });
+    expect(supersedeExtracted(existing, "ds1").powerStates).toHaveLength(0);
+  });
+
+  it("keeps a row with a real numeric value even if it is somehow missing a source", () => {
+    // Defensive case: real data must never be silently dropped just because
+    // it lacks sources, only because it's an empty husk. Bypass the Zod
+    // schema (which normally requires a source on every SourcedValue) to
+    // simulate malformed/legacy data carrying an actual number.
+    const existing = {
+      absoluteMax: [],
+      recommendedOperating: [],
+      powerStates: [
+        { name: "odd", current: { typ: { value: 4.2, unit: "mA" } } },
+      ],
+      pins: [],
+      interfaces: [],
+      decoupling: [],
+      extra: {},
+    } as unknown as ComponentSpecs;
     expect(supersedeExtracted(existing, "ds1").powerStates).toHaveLength(1);
   });
 });

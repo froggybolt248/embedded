@@ -56,6 +56,29 @@ describe("mapTable", () => {
     expect(row.max).toBe(2);
   });
 
+  it("drops dB/dBm rows instead of minting a junk recommended-operating param", () => {
+    // SX1262-class datasheet, verbatim shape: the RF sensitivity table sits
+    // where a recommended-operating table would, and its condition cell ("split
+    // RF paths for RX and TX, RF switch insertion loss excluded") has no
+    // symbol, so a dBm row was falling through to the row's first text cell as
+    // the param label and minting junk like recOp=43 with param
+    // "split-rf-paths-for-rx-and-tx-rf-switch-insertion-loss-excluded". RF
+    // performance modeling is a future feature — a dropped row is honest.
+    const part = mapTable(
+      table(
+        ["Parameter", "Condition", "Min", "Typ", "Max", "Unit"],
+        [
+          ["Rx sensitivity", "SF7, BW 125 kHz", "", "-123", "", "dBm"],
+          ["Antenna gain", "", "", "2.15", "", "dB"],
+          ["Supply voltage", "", "1.8", "", "3.7", "V"],
+        ],
+      ),
+      "recommended-operating",
+    );
+    expect(part.recommendedOperating).toHaveLength(1);
+    expect(part.recommendedOperating![0]!.param).toBe("vdd");
+  });
+
   it("splits an electrical-characteristics table into power states and rated params by unit", () => {
     const part = mapTable(
       table(

@@ -17,6 +17,10 @@ import type {
   Finding,
   PowerMode,
   ValueSource,
+  Requirement,
+  CreateRequirementInput,
+  UpdateRequirementInput,
+  QuantifiedRequirement,
 } from "@embedded/core";
 import type { LlmSettings, LlmProviderKind } from "@embedded/llm";
 import type { ExtractionFields } from "@embedded/ingest";
@@ -166,6 +170,13 @@ export interface WakeProposal {
   reason: string;
 }
 
+/** one generated firmware file — content is the deliverable, never persisted server-side */
+export interface FirmwareFile {
+  name: string;
+  kind: string;
+  content: string;
+}
+
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(path, {
     headers: { "content-type": "application/json" },
@@ -264,6 +275,35 @@ export const api = {
         body: JSON.stringify(input),
       }),
     remove: (id: string) => request<void>(`/api/connections/${id}`, { method: "DELETE" }),
+  },
+  requirements: {
+    list: (projectId: string) =>
+      request<Requirement[]>(`/api/projects/${projectId}/requirements`),
+    create: (projectId: string, input: CreateRequirementInput) =>
+      request<Requirement>(`/api/projects/${projectId}/requirements`, {
+        method: "POST",
+        body: JSON.stringify(input),
+      }),
+    update: (id: string, input: UpdateRequirementInput) =>
+      request<Requirement>(`/api/requirements/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(input),
+      }),
+    remove: (id: string) => request<void>(`/api/requirements/${id}`, { method: "DELETE" }),
+    /**
+     * LLM assist off the critical path: null is the normal answer when no
+     * provider is configured (or it declined) — never an error, never applied
+     * without the user accepting it.
+     */
+    quantify: (id: string) =>
+      request<{ proposal: QuantifiedRequirement | null }>(
+        `/api/requirements/${id}/quantify`,
+        { method: "POST", body: JSON.stringify({}) },
+      ),
+  },
+  firmware: {
+    generate: (projectId: string) =>
+      request<{ files: FirmwareFile[] }>(`/api/projects/${projectId}/firmware`),
   },
   findings: {
     list: (projectId: string) =>
