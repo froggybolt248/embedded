@@ -1,0 +1,378 @@
+[
+ {
+  "str": "Bosch Sensortec |",
+  "x": 70.92,
+  "y": 809.04,
+  "width": 87.14152799999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "BME280 Data sheet",
+  "x": 160.92204,
+  "y": 809.04,
+  "width": 89.39697600000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "13 |",
+  "x": 493.43664,
+  "y": 810.7232399999999,
+  "width": 16.39416,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "60",
+  "x": 512.64,
+  "y": 810.72,
+  "width": 11.055600000000045,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Modifications reserved | Data subject to change without notice",
+  "x": 70.68,
+  "y": 26.04,
+  "width": 178.31349600000013,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Document number: BST-BME280-DS001-23 Revision_1.23_012022",
+  "x": 326.04,
+  "y": 24.72,
+  "width": 196.07683199999943,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "2.",
+  "x": 70.92,
+  "y": 757.92,
+  "width": 11.703743999999997,
+  "height": 14.04,
+  "rotated": false
+ },
+ {
+  "str": "Absolute maximum ratings",
+  "x": 92.51352,
+  "y": 757.92,
+  "width": 179.78079600000004,
+  "height": 14.04,
+  "rotated": false
+ },
+ {
+  "str": "The absolute maximum ratings are determined over complete temperature range using corner lots.",
+  "x": 70.92,
+  "y": 731.64,
+  "width": 436.2270839999987,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "The values are provided in",
+  "x": 70.92,
+  "y": 717.71592,
+  "width": 117.731184,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Table 5",
+  "x": 191.40612,
+  "y": 717.71592,
+  "width": 32.16980399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": ".",
+  "x": 223.5560039999999,
+  "y": 717.71592,
+  "width": 2.7688800000000007,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Table 5: Absolute maximum ratings",
+  "x": 70.92,
+  "y": 694.56,
+  "width": 141.07590000000002,
+  "height": 9,
+  "rotated": false
+ },
+ {
+  "str": "Parameter",
+  "x": 77.4,
+  "y": 665.04,
+  "width": 48.867744000000016,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Condition",
+  "x": 264.36,
+  "y": 665.04,
+  "width": 46.64267999999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Min",
+  "x": 367.8,
+  "y": 665.04,
+  "width": 17.122235999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Max",
+  "x": 435.12,
+  "y": 665.04,
+  "width": 19.332359999999976,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Unit",
+  "x": 491.64,
+  "y": 665.04,
+  "width": 19.396103999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Voltage at any supply pin",
+  "x": 77.4,
+  "y": 641.4,
+  "width": 111.11774399999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDD and VDDIO pin",
+  "x": 249,
+  "y": 641.4,
+  "width": 77.29860000000005,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "-0.3",
+  "x": 367.68,
+  "y": 641.4,
+  "width": 17.17551599999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "4.25",
+  "x": 435.12,
+  "y": 641.4,
+  "width": 19.333355999999988,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "V",
+  "x": 498,
+  "y": 641.4,
+  "width": 6.643320000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Voltage at any interface pin",
+  "x": 77.4,
+  "y": 624,
+  "width": 120.47516399999995,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "-0.3",
+  "x": 367.68,
+  "y": 624,
+  "width": 17.17551599999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO + 0.3",
+  "x": 420.72,
+  "y": 624,
+  "width": 48.13382399999993,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "V",
+  "x": 498,
+  "y": 624,
+  "width": 6.643320000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Storage temperature",
+  "x": 77.4,
+  "y": 603.48,
+  "width": 91.56715199999992,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "≤ 65%",
+  "x": 264.96,
+  "y": 603.48,
+  "width": 28.169867999999926,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "RH",
+  "x": 295.92,
+  "y": 603.48,
+  "width": 14.391119999999978,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "-45",
+  "x": 369.12,
+  "y": 603.48,
+  "width": 14.415599999999984,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "+85",
+  "x": 436.44,
+  "y": 603.48,
+  "width": 16.814472000000038,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "°C",
+  "x": 495.72,
+  "y": 603.48,
+  "width": 11.155199999999988,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Pressure",
+  "x": 77.4,
+  "y": 582,
+  "width": 39.973464000000014,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "0",
+  "x": 373.56,
+  "y": 582,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "20 000",
+  "x": 429.6,
+  "y": 582,
+  "width": 30.490547999999983,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "hPa",
+  "x": 492.48,
+  "y": 582,
+  "width": 17.661071999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "ESD",
+  "x": 77.4,
+  "y": 561.6,
+  "width": 20.398080000000007,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "HBM, at any pin",
+  "x": 252.12,
+  "y": 561.6,
+  "width": 71.05907999999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "±2",
+  "x": 439.32,
+  "y": 561.6,
+  "width": 11.055600000000007,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "kV",
+  "x": 495.48,
+  "y": 561.6,
+  "width": 11.683079999999984,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "CDM",
+  "x": 276.36,
+  "y": 540.24,
+  "width": 22.698839999999958,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "±500",
+  "x": 433.8,
+  "y": 540.24,
+  "width": 22.093271999999953,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "V",
+  "x": 498,
+  "y": 540.24,
+  "width": 6.643320000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Machine model",
+  "x": 253.8,
+  "y": 519.84,
+  "width": 67.71106799999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "±200",
+  "x": 433.8,
+  "y": 519.84,
+  "width": 22.093271999999953,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "V",
+  "x": 498,
+  "y": 519.84,
+  "width": 6.643320000000001,
+  "height": 9.96,
+  "rotated": false
+ }
+]

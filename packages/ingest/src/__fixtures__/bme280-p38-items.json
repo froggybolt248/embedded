@@ -1,0 +1,898 @@
+[
+ {
+  "str": "Bosch Sensortec |",
+  "x": 70.92,
+  "y": 809.04,
+  "width": 87.14152799999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "BME280 Data sheet",
+  "x": 160.92204,
+  "y": 809.04,
+  "width": 89.39697600000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "38 |",
+  "x": 493.43664,
+  "y": 810.7232399999999,
+  "width": 16.39416,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "60",
+  "x": 512.64,
+  "y": 810.72,
+  "width": 11.055600000000045,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Modifications reserved | Data subject to change without notice",
+  "x": 70.68,
+  "y": 26.04,
+  "width": 178.31349600000013,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Document number: BST-BME280-DS001-23 Revision_1.23_012022",
+  "x": 326.04,
+  "y": 24.72,
+  "width": 196.07683199999943,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "7.",
+  "x": 70.92,
+  "y": 757.92,
+  "width": 11.703743999999997,
+  "height": 14.04,
+  "rotated": false
+ },
+ {
+  "str": "Pin-out and connection diagram",
+  "x": 92.51352,
+  "y": 757.92,
+  "width": 214.09034400000013,
+  "height": 14.04,
+  "rotated": false
+ },
+ {
+  "str": "7.1",
+  "x": 70.92,
+  "y": 731.64,
+  "width": 16.752000000000002,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "Pin-out",
+  "x": 99.24,
+  "y": 731.64,
+  "width": 38.13599999999999,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "TOP VIEW",
+  "x": 159.2572,
+  "y": 599.6993,
+  "width": 44.85499200000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "(pads not visible)",
+  "x": 147.011512,
+  "y": 587.66767,
+  "width": 69.33719520000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "8",
+  "x": 92.4667,
+  "y": 687.1493,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "VDD",
+  "x": 87.65098,
+  "y": 675.1176700000001,
+  "width": 14.728581599999988,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "7",
+  "x": 92.4667,
+  "y": 628.8495,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "GND",
+  "x": 84.8257576,
+  "y": 616.8178700000001,
+  "width": 20.3819616,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "6",
+  "x": 92.4667,
+  "y": 570.5497,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO",
+  "x": 84.5047096,
+  "y": 558.5180700000001,
+  "width": 21.02359039999999,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "5",
+  "x": 92.4667,
+  "y": 512.2499,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "SDO",
+  "x": 85.082596,
+  "y": 500.21827,
+  "width": 19.8774576,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "BOTTOM VIEW",
+  "x": 394.6385,
+  "y": 599.6996,
+  "width": 65.23695359999999,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "(pads visible)",
+  "x": 400.23390800000004,
+  "y": 587.6679700000001,
+  "width": 54.036964800000014,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 338.0377,
+  "y": 687.1498,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "GND",
+  "x": 330.3967576,
+  "y": 675.1181700000001,
+  "width": 20.3819616,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "2",
+  "x": 338.0377,
+  "y": 628.8501,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "CSB",
+  "x": 331.1581,
+  "y": 616.81847,
+  "width": 18.8592768,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "3",
+  "x": 338.0377,
+  "y": 570.5503,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "SDI",
+  "x": 332.94679599999995,
+  "y": 558.51867,
+  "width": 15.291057600000002,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "4",
+  "x": 338.0377,
+  "y": 512.2505,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "SCK",
+  "x": 331.1581,
+  "y": 500.21887,
+  "width": 18.8592768,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "Pin 1",
+  "x": 379.5996568,
+  "y": 663.4603238,
+  "width": 20.904811200000008,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "marker",
+  "x": 375.783772,
+  "y": 651.4286938,
+  "width": 28.536580800000003,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 265.811,
+  "y": 687.1503,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "GND",
+  "x": 258.17005759999995,
+  "y": 675.1186700000001,
+  "width": 20.3819616,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "2",
+  "x": 265.8111,
+  "y": 628.8506,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "CSB",
+  "x": 258.9315,
+  "y": 616.81897,
+  "width": 18.8592768,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "3",
+  "x": 265.8111,
+  "y": 570.5507,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "SDI",
+  "x": 260.720196,
+  "y": 558.51907,
+  "width": 15.291057600000002,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "4",
+  "x": 265.8111,
+  "y": 512.2509,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "SCK",
+  "x": 258.9315,
+  "y": 500.21927,
+  "width": 18.8592768,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "8",
+  "x": 511.382,
+  "y": 687.1506,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "VDD",
+  "x": 506.56628,
+  "y": 675.1189700000001,
+  "width": 14.728581600000002,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "7",
+  "x": 511.3821,
+  "y": 628.8508,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "GND",
+  "x": 503.74115759999995,
+  "y": 616.8191700000001,
+  "width": 20.3819616,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "6",
+  "x": 511.382,
+  "y": 570.551,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO",
+  "x": 503.4200096,
+  "y": 558.5193700000001,
+  "width": 21.02359039999999,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "5",
+  "x": 511.382,
+  "y": 512.2512,
+  "width": 5.100076800000001,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "SDO",
+  "x": 503.997896,
+  "y": 500.21957000000003,
+  "width": 19.8774576,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "Vent hole",
+  "x": 161.6459,
+  "y": 526.6403,
+  "width": 38.755080000000014,
+  "height": 9.2551,
+  "rotated": false
+ },
+ {
+  "str": "Figure 16: Pin-out top and bottom view",
+  "x": 70.92,
+  "y": 464.4,
+  "width": 154.69560000000007,
+  "height": 9,
+  "rotated": false
+ },
+ {
+  "str": "Note: The pin numbering of BME280 is performed in the untypical clockwise direction when seen in top",
+  "x": 70.92,
+  "y": 439.2,
+  "width": 453.4230239999993,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "view and counter-clockwise when seen in bottom view.",
+  "x": 70.92,
+  "y": 427.67627999999996,
+  "width": 242.13158399999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Table 35: Pin description",
+  "x": 70.92,
+  "y": 403.08,
+  "width": 99.2070000000001,
+  "height": 9,
+  "rotated": false
+ },
+ {
+  "str": "Pin",
+  "x": 78.12,
+  "y": 373.68,
+  "width": 15.449951999999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Name",
+  "x": 108.24,
+  "y": 373.68,
+  "width": 27.13602,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "I/O Type",
+  "x": 150.96,
+  "y": 373.68,
+  "width": 38.654759999999975,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Description",
+  "x": 222.6,
+  "y": 373.68,
+  "width": 54.92143199999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Connect to",
+  "x": 359.04,
+  "y": 373.68,
+  "width": 52.157532000000025,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SPI 4W",
+  "x": 311.4,
+  "y": 357.36,
+  "width": 33.76738799999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SPI 3W",
+  "x": 365.52,
+  "y": 357.36,
+  "width": 33.76738799999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "I²C",
+  "x": 432.48,
+  "y": 357.36,
+  "width": 13.310543999999995,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 83.16,
+  "y": 341.16,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "GND",
+  "x": 110.76,
+  "y": 341.16,
+  "width": 22.191876000000015,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Supply",
+  "x": 155.04,
+  "y": 341.16,
+  "width": 30.414852,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Ground",
+  "x": 233.4,
+  "y": 341.16,
+  "width": 33.251459999999966,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "GND",
+  "x": 374.04,
+  "y": 341.16,
+  "width": 22.191875999999972,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "2",
+  "x": 83.16,
+  "y": 324.84,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "CSB",
+  "x": 111.6,
+  "y": 324.84,
+  "width": 20.44688400000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "In",
+  "x": 166.2,
+  "y": 324.84,
+  "width": 8.296679999999995,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Chip select",
+  "x": 225.36,
+  "y": 324.84,
+  "width": 49.32092399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "CSB",
+  "x": 318.12,
+  "y": 324.84,
+  "width": 20.44688399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "CSB",
+  "x": 372.12,
+  "y": 324.84,
+  "width": 20.44688399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO",
+  "x": 427.68,
+  "y": 324.84,
+  "width": 22.799999999999955,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "3",
+  "x": 83.16,
+  "y": 306.84,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SDI",
+  "x": 113.52,
+  "y": 306.84,
+  "width": 16.572444000000008,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "In/Out",
+  "x": 156.72,
+  "y": 306.84,
+  "width": 27.125064000000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Serial data input",
+  "x": 213.96,
+  "y": 306.84,
+  "width": 72.11438400000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SDI",
+  "x": 320.04,
+  "y": 306.84,
+  "width": 16.57244399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SDI/SDO",
+  "x": 361.8,
+  "y": 306.84,
+  "width": 40.99635599999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SDA",
+  "x": 428.88,
+  "y": 306.84,
+  "width": 20.44688399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "4",
+  "x": 83.16,
+  "y": 288.84,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SCK",
+  "x": 111.6,
+  "y": 288.84,
+  "width": 20.44688400000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "In",
+  "x": 166.2,
+  "y": 288.84,
+  "width": 8.296679999999995,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Serial clock input",
+  "x": 212.28,
+  "y": 288.84,
+  "width": 75.47588399999991,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SCK",
+  "x": 318.12,
+  "y": 288.84,
+  "width": 20.44688399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SCK",
+  "x": 372.12,
+  "y": 288.84,
+  "width": 20.44688399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SCL",
+  "x": 429.48,
+  "y": 288.84,
+  "width": 19.341323999999968,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "5",
+  "x": 83.16,
+  "y": 270.84,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SDO",
+  "x": 111,
+  "y": 270.84,
+  "width": 21.55244400000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "In/Out",
+  "x": 156.72,
+  "y": 270.84,
+  "width": 27.125064000000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Serial data output",
+  "x": 210.84,
+  "y": 270.84,
+  "width": 78.22982399999992,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SDO",
+  "x": 317.52,
+  "y": 270.84,
+  "width": 21.552443999999966,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "DNC",
+  "x": 371.52,
+  "y": 270.84,
+  "width": 21.593279999999957,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "GND for",
+  "x": 420.84,
+  "y": 270.84,
+  "width": 36.557183999999964,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "default",
+  "x": 424.2,
+  "y": 256.92,
+  "width": 29.882988000000008,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "address",
+  "x": 421.44,
+  "y": 242.88,
+  "width": 35.45162399999991,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "6",
+  "x": 83.16,
+  "y": 226.68,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO",
+  "x": 110.4,
+  "y": 226.68,
+  "width": 22.799999999999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Supply",
+  "x": 155.04,
+  "y": 226.68,
+  "width": 30.414852,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Digital / Interface",
+  "x": 212.64,
+  "y": 226.68,
+  "width": 74.891376,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "supply",
+  "x": 235.56,
+  "y": 212.64,
+  "width": 28.732608,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO",
+  "x": 373.68,
+  "y": 226.68,
+  "width": 22.799999999999955,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "7",
+  "x": 83.16,
+  "y": 196.44,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "GND",
+  "x": 110.76,
+  "y": 196.44,
+  "width": 22.191876000000015,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Supply",
+  "x": 155.04,
+  "y": 196.44,
+  "width": 30.414852,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Ground",
+  "x": 233.4,
+  "y": 196.44,
+  "width": 33.251459999999966,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "GND",
+  "x": 374.04,
+  "y": 196.44,
+  "width": 22.191875999999972,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "8",
+  "x": 83.16,
+  "y": 180.12,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDD",
+  "x": 113.76,
+  "y": 180.12,
+  "width": 15.957119999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Supply",
+  "x": 155.04,
+  "y": 180.12,
+  "width": 30.414852,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Analog supply",
+  "x": 218.64,
+  "y": 180.12,
+  "width": 62.69023199999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDD",
+  "x": 377.04,
+  "y": 180.12,
+  "width": 15.95711999999995,
+  "height": 9.96,
+  "rotated": false
+ }
+]

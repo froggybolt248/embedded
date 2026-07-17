@@ -1,0 +1,23 @@
+{
+  "name": "embedded",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Local-first embedded hardware design workflow app",
+  "engines": {
+    "node": ">=22"
+  },
+  "packageManager": "pnpm@11.9.0",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "test:e2e": "playwright test",
+    "typecheck": "turbo run typecheck",
+    "start": "node apps/server/dist/main.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.55.0",
+    "turbo": "^2.5.0",
+    "typescript": "^5.8.0"
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE `blocks` ADD `duties` text DEFAULT '{}' NOT NULL;

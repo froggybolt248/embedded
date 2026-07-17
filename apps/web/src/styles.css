@@ -1,0 +1,38 @@
+@import "tailwindcss";
+@import "@fontsource-variable/inter";
+@import "@fontsource/jetbrains-mono";
+
+@theme {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* instrument-panel palette: near-black surfaces, one accent */
+  --color-surface-0: #0a0b0d;
+  --color-surface-1: #111318;
+  --color-surface-2: #191c23;
+  --color-surface-3: #22262f;
+  --color-line: #2a2f3a;
+  --color-ink: #e6e9ef;
+  --color-ink-dim: #9aa3b2;
+  --color-ink-faint: #5c6470;
+  --color-accent: #4fd1c5;
+  --color-accent-dim: #2c7a73;
+  --color-warn: #f6ad55;
+  --color-danger: #fc8181;
+  --color-ok: #68d391;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface-0 text-ink font-sans antialiased;
+}
+
+/* numerics and units always in mono */
+.num {
+  @apply font-mono tabular-nums;
+}

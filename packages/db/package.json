@@ -1,0 +1,26 @@
+{
+  "name": "@embedded/db",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "generate": "drizzle-kit generate",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@embedded/core": "workspace:*",
+    "better-sqlite3": "^12.2.0",
+    "drizzle-orm": "^0.44.0",
+    "nanoid": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "drizzle-kit": "^0.31.0",
+    "typescript": "^5.8.0",
+    "vitest": "^3.1.0"
+  }
+}

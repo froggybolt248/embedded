@@ -1,0 +1,978 @@
+[
+ {
+  "str": "Bosch Sensortec |",
+  "x": 70.92,
+  "y": 809.04,
+  "width": 87.14152799999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "BME280 Data sheet",
+  "x": 160.92204,
+  "y": 809.04,
+  "width": 89.39697600000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "8 |",
+  "x": 498.9544800000001,
+  "y": 810.7232399999999,
+  "width": 10.866360000000034,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "60",
+  "x": 512.64,
+  "y": 810.72,
+  "width": 11.055600000000045,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Modifications reserved | Data subject to change without notice",
+  "x": 70.68,
+  "y": 26.04,
+  "width": 178.31349600000013,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Document number: BST-BME280-DS001-23 Revision_1.23_012022",
+  "x": 326.04,
+  "y": 24.72,
+  "width": 196.07683199999943,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "1.",
+  "x": 70.92,
+  "y": 757.92,
+  "width": 11.703743999999997,
+  "height": 14.04,
+  "rotated": false
+ },
+ {
+  "str": "Specification",
+  "x": 92.51352,
+  "y": 757.92,
+  "width": 87.179976,
+  "height": 14.04,
+  "rotated": false
+ },
+ {
+  "str": "If not stated otherwise,",
+  "x": 70.92,
+  "y": 731.64,
+  "width": 100.42867199999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.92767999999998,
+  "y": 718.80156,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "All values are valid over the full voltage range",
+  "x": 106.92539999999998,
+  "y": 718.80156,
+  "width": 201.09439199999986,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.92767999999995,
+  "y": 706.68024,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "All minimum/maximum values are given for the full accuracy temperature range",
+  "x": 106.92539999999995,
+  "y": 706.68024,
+  "width": 350.6348279999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.92767999999995,
+  "y": 694.4394,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Minimum/maximum values of drifts, offsets and temperature coefficients are ±3",
+  "x": 106.92539999999995,
+  "y": 694.4394,
+  "width": 355.9952999999995,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "σ",
+  "x": 462.90077999999966,
+  "y": 694.4394,
+  "width": 6.00588,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "values over",
+  "x": 472.55699999999996,
+  "y": 694.4394,
+  "width": 51.78602399999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "lifetime",
+  "x": 106.91543999999993,
+  "y": 683.0352,
+  "width": 31.581168,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.91771999999992,
+  "y": 670.79436,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Typical values of drifts, offsets and temperature coefficients are ±1",
+  "x": 106.91543999999992,
+  "y": 670.79436,
+  "width": 293.87378399999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "σ",
+  "x": 400.76930399999975,
+  "y": 670.79436,
+  "width": 6.00588,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "values over lifetime",
+  "x": 409.55999999999995,
+  "y": 670.79436,
+  "width": 85.68787199999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.91771999999986,
+  "y": 658.434,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Typical values of currents and state machine timings are determined at 25 °C",
+  "x": 106.91543999999986,
+  "y": 658.434,
+  "width": 341.1937439999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.91771999999986,
+  "y": 646.31268,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Minimum/maximum",
+  "x": 106.91543999999986,
+  "y": 646.31268,
+  "width": 86.5185359999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "values",
+  "x": 200.02151999999975,
+  "y": 646.31268,
+  "width": 28.855116000000006,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "of",
+  "x": 235.4203559999997,
+  "y": 646.31268,
+  "width": 8.286719999999988,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "currents",
+  "x": 250.1820719999997,
+  "y": 646.31268,
+  "width": 36.054203999999935,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "are",
+  "x": 292.89652799999965,
+  "y": 646.31268,
+  "width": 14.415107999999973,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "determined",
+  "x": 313.77567599999963,
+  "y": 646.31268,
+  "width": 50.04601199999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "using",
+  "x": 370.4022599999995,
+  "y": 646.31268,
+  "width": 23.895035999999966,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "corner",
+  "x": 400.76133599999946,
+  "y": 646.31268,
+  "width": 28.270463999999926,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "lots",
+  "x": 435.67511999999937,
+  "y": 646.31268,
+  "width": 15.418080000000007,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "over",
+  "x": 457.75245599999937,
+  "y": 646.31268,
+  "width": 19.39211999999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "complete",
+  "x": 483.67136399999936,
+  "y": 646.31268,
+  "width": 40.56907200000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "temperature range",
+  "x": 106.91543999999986,
+  "y": 634.90848,
+  "width": 82.19987999999992,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.91771999999987,
+  "y": 622.66764,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Minimum/maximum values of state machine timings are determined using corner lots over",
+  "x": 106.91543999999988,
+  "y": 622.66764,
+  "width": 417.3807719999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "0…+65 °C temperature range",
+  "x": 106.91543999999988,
+  "y": 611.14392,
+  "width": 131.53176000000016,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "The specification tables are split into humidity, pressure, and temperature part of BME280.",
+  "x": 70.9100399999999,
+  "y": 583.7838,
+  "width": 398.8163279999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "1.1",
+  "x": 70.92,
+  "y": 560.76,
+  "width": 16.752000000000002,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "General electrical specification",
+  "x": 99.24,
+  "y": 560.76,
+  "width": 162.79200000000003,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "Table 1: Electrical parameter specification",
+  "x": 70.92,
+  "y": 537.84,
+  "width": 167.12730000000002,
+  "height": 9,
+  "rotated": false
+ },
+ {
+  "str": "Parameter",
+  "x": 77.4,
+  "y": 508.44,
+  "width": 48.867744000000016,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Symbol",
+  "x": 181.44,
+  "y": 508.44,
+  "width": 36.00938400000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Condition",
+  "x": 257.76,
+  "y": 508.44,
+  "width": 46.64267999999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Min",
+  "x": 354,
+  "y": 508.44,
+  "width": 17.122235999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Typ",
+  "x": 407.16,
+  "y": 508.44,
+  "width": 17.003712000000043,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Max",
+  "x": 459.24,
+  "y": 508.44,
+  "width": 19.332359999999976,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Unit",
+  "x": 508.68,
+  "y": 508.44,
+  "width": 19.396103999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Supply Voltage",
+  "x": 77.4,
+  "y": 491.52,
+  "width": 66.61297199999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Internal Domains",
+  "x": 77.4,
+  "y": 477.6,
+  "width": 75.40616399999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDD",
+  "x": 191.52,
+  "y": 491.52,
+  "width": 15.957120000000007,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "ripple max. 50 mVpp",
+  "x": 235.32,
+  "y": 491.52,
+  "width": 91.58133600000006,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "1.71",
+  "x": 352.92,
+  "y": 491.52,
+  "width": 19.333355999999988,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "1.8",
+  "x": 408.72,
+  "y": 491.52,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "3.6",
+  "x": 462,
+  "y": 491.52,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "V",
+  "x": 515.04,
+  "y": 491.52,
+  "width": 6.643320000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Supply Voltage",
+  "x": 77.4,
+  "y": 461.28,
+  "width": 66.60949199999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "I/O Domain",
+  "x": 77.4,
+  "y": 447.36,
+  "width": 50.410548000000006,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO",
+  "x": 188.04,
+  "y": 461.28,
+  "width": 22.800000000000004,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "1.2",
+  "x": 355.68,
+  "y": 461.28,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "1.8",
+  "x": 408.72,
+  "y": 461.28,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "3.6",
+  "x": 462,
+  "y": 461.28,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "V",
+  "x": 515.04,
+  "y": 461.28,
+  "width": 6.643320000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Sleep current",
+  "x": 77.4,
+  "y": 431.04,
+  "width": 59.39845199999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "IDDSL",
+  "x": 189.48,
+  "y": 431.04,
+  "width": 20.042160000000024,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "0.1",
+  "x": 408.72,
+  "y": 431.04,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "0.3",
+  "x": 462,
+  "y": 431.04,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "μA",
+  "x": 512.16,
+  "y": 431.04,
+  "width": 12.400199999999957,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Standby current",
+  "x": 77.4,
+  "y": 400.68,
+  "width": 70.43413199999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "(inactive period of",
+  "x": 77.4,
+  "y": 386.64,
+  "width": 78.82841999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "normal mode)",
+  "x": 77.4,
+  "y": 372.6,
+  "width": 61.50200399999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "IDDSB",
+  "x": 189.12,
+  "y": 400.68,
+  "width": 20.761439999999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "0.2",
+  "x": 408.72,
+  "y": 400.68,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "0.5",
+  "x": 462,
+  "y": 400.68,
+  "width": 13.815515999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "μA",
+  "x": 512.16,
+  "y": 400.68,
+  "width": 12.400199999999957,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Current during",
+  "x": 77.4,
+  "y": 353.4,
+  "width": 63.850572000000035,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "humidity",
+  "x": 77.4,
+  "y": 339.36,
+  "width": 37.14382799999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "measurement",
+  "x": 77.4,
+  "y": 325.32,
+  "width": 61.072728000000005,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "IDDH",
+  "x": 191.04,
+  "y": 353.28,
+  "width": 16.795680000000026,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Max value at 85 °C",
+  "x": 238.8,
+  "y": 353.28,
+  "width": 84.45581999999983,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "340",
+  "x": 407.4,
+  "y": 353.28,
+  "width": 16.573439999999977,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "μA",
+  "x": 512.16,
+  "y": 353.28,
+  "width": 12.400199999999957,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Current during",
+  "x": 77.4,
+  "y": 303.12,
+  "width": 63.84858000000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "pressure",
+  "x": 77.4,
+  "y": 289.08,
+  "width": 38.89180800000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "measurement",
+  "x": 77.4,
+  "y": 275.04,
+  "width": 61.072728000000005,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "IDDP",
+  "x": 191.28,
+  "y": 303.12,
+  "width": 16.439279999999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Max value at -40 °C",
+  "x": 237.12,
+  "y": 303.12,
+  "width": 87.82728,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "714",
+  "x": 407.4,
+  "y": 303.12,
+  "width": 16.573439999999977,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "μA",
+  "x": 512.16,
+  "y": 303.12,
+  "width": 12.400199999999957,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Current during",
+  "x": 77.4,
+  "y": 252.84,
+  "width": 63.850572000000035,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "temperature",
+  "x": 77.4,
+  "y": 238.92,
+  "width": 53.76706800000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "measurement",
+  "x": 77.4,
+  "y": 224.88,
+  "width": 61.072728000000005,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "IDDT",
+  "x": 191.52,
+  "y": 252.84,
+  "width": 16.076399999999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Max value at 85 °C",
+  "x": 238.8,
+  "y": 252.84,
+  "width": 84.45581999999983,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "350",
+  "x": 407.4,
+  "y": 252.84,
+  "width": 16.573439999999977,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "μA",
+  "x": 512.16,
+  "y": 252.84,
+  "width": 12.400199999999957,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Start-up time",
+  "x": 77.4,
+  "y": 202.56,
+  "width": 57.123588,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "tstartup",
+  "x": 188.16,
+  "y": 202.56,
+  "width": 22.566119999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Time to first",
+  "x": 255.24,
+  "y": 202.68,
+  "width": 51.839807999999906,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "communication after",
+  "x": 236.16,
+  "y": 188.64,
+  "width": 89.93381999999993,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "both VDD > 1.58 V",
+  "x": 241.92,
+  "y": 174.6,
+  "width": 78.51792000000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "and VDDIO > 0.65 V",
+  "x": 239.76,
+  "y": 160.56,
+  "width": 82.59792,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "2",
+  "x": 466.2,
+  "y": 202.56,
+  "width": 5.537760000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "ms",
+  "x": 511.68,
+  "y": 202.56,
+  "width": 13.256760000000044,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Power supply",
+  "x": 77.4,
+  "y": 138.36,
+  "width": 59.932308000000035,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "rejection ratio (DC)",
+  "x": 77.4,
+  "y": 124.32,
+  "width": 83.83232400000003,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "PSRR",
+  "x": 185.64,
+  "y": 138.36,
+  "width": 27.717683999999995,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "full VDD range",
+  "x": 251.16,
+  "y": 138.36,
+  "width": 59.89121999999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "±0.01",
+  "x": 456.48,
+  "y": 138.36,
+  "width": 24.85119599999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "±5",
+  "x": 463.44,
+  "y": 124.32,
+  "width": 11.055600000000007,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%RH/V",
+  "x": 502.68,
+  "y": 138.36,
+  "width": 32.68573199999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Pa/V",
+  "x": 508.2,
+  "y": 124.32,
+  "width": 21.647063999999954,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Standby time",
+  "x": 77.4,
+  "y": 102.12,
+  "width": 58.20623999999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "accuracy",
+  "x": 77.4,
+  "y": 88.08,
+  "width": 40.014300000000006,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Δ",
+  "x": 183.36,
+  "y": 102.12,
+  "width": 6.6532800000000005,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "tstandby",
+  "x": 189.96348,
+  "y": 102.12,
+  "width": 25.55380800000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "±5",
+  "x": 410.16,
+  "y": 102.12,
+  "width": 11.055600000000007,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "±25",
+  "x": 460.68,
+  "y": 102.12,
+  "width": 16.575431999999967,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%",
+  "x": 513.96,
+  "y": 102.12,
+  "width": 8.85444,
+  "height": 9.96,
+  "rotated": false
+ }
+]

@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.turbo/
+*.local
+.env
+.env.*
+*.tsbuildinfo
+coverage/
+playwright-report/
+test-results/
+# runtime data lives in %APPDATA%/embedded, never in the repo
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+# local-only corpus of downloaded vendor PDFs for pipeline testing; never redistributed
+.corpus/
+# scratch tools that only work against .corpus/ — kept local, useless to a clone
+apps/server/src/_dump*.ts
+packages/core/test-cycle.mjs

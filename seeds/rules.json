@@ -1,0 +1,120 @@
+[
+  {
+    "id": "i2c-pullup-too-weak",
+    "name": "I²C pull-up too weak for the bus speed",
+    "description": "An I²C line is pulled up through a resistor and its rise is RC. The resistor everyone copies is 4.7 kΩ, which is fine at 100 kHz and out of spec at 400 kHz with any real trace capacitance — so the bus works on the bench and fails in the field. Rmax = tr / (0.8473 · Cb), where 0.8473 = ln(0.9/0.3), the RC time constants spent crossing the 30%→70% band the spec measures rise time across.",
+    "severity": "warning",
+    "appliesTo": { "interface": "i2c", "i2cMode": "fast" },
+    "check": {
+      "when": "true",
+      "assert": "rpullOhms * busCapacitanceF <= 300e-9 / 0.8473",
+      "message": "Pull-up of {rpullOhms} Ω is too weak for 400 kHz with {busCapacitanceF * 1e12} pF of bus capacitance: the rise time exceeds the 300 ns limit. Use {300e-9 / (0.8473 * busCapacitanceF)} Ω or less, or shorten the bus."
+    },
+    "citation": "NXP UM10204 (I²C-bus specification and user manual), §7.1 and Table 10",
+    "enabled": true,
+    "builtin": false
+  },
+  {
+    "id": "i2c-pullup-too-strong",
+    "name": "I²C pull-up stronger than a device can sink",
+    "description": "The other end of the window. A device must be able to pull the line down to VOL (0.4 V) while sinking IOL (3 mA in Standard and Fast mode), so the pull-up cannot be arbitrarily strong. Fast-mode Plus raises IOL to 20 mA precisely so a stronger pull-up becomes legal.",
+    "severity": "warning",
+    "appliesTo": { "interface": "i2c" },
+    "check": {
+      "when": "true",
+      "assert": "rpullOhms >= (railV - 0.4) / 0.003",
+      "message": "Pull-up of {rpullOhms} Ω is stronger than a device can sink: at {railV} V, holding the line at 0.4 V into 3 mA needs at least {(railV - 0.4) / 0.003} Ω."
+    },
+    "citation": "NXP UM10204 (I²C-bus specification and user manual), §7.1",
+    "enabled": true,
+    "builtin": false
+  },
+  {
+    "id": "level-shift-overvoltage",
+    "name": "Logic high exceeds the receiver's absolute maximum",
+    "description": "The damaging half of a level mismatch: a driver's high sits above the voltage the receiving pin is rated to survive. Unlike a weak high, this does not merely misread — it destroys the part, sometimes slowly enough that it passes bring-up and fails in the field.",
+    "severity": "error",
+    "appliesTo": { "kind": "connection" },
+    "check": {
+      "when": "true",
+      "assert": "fromHighV <= toAbsMaxV",
+      "message": "A {fromHighV} V logic high drives a pin rated to {toAbsMaxV} V absolute maximum. This damages the receiver — add a level shifter."
+    },
+    "citation": "Receiver's datasheet, absolute maximum ratings",
+    "enabled": true,
+    "builtin": false
+  },
+  {
+    "id": "level-shift-weak-high",
+    "name": "Logic high does not reach the receiver's input threshold",
+    "description": "The classic 3.3 V → 5 V trap. A 3.3 V high clears a 5 V TTL VIH of 2.0 V and so appears to work, but a 5 V CMOS input wants 0.7·VDD = 3.5 V and never reliably sees a high. The link then works on one board and not the next, or works until it warms up.",
+    "severity": "error",
+    "appliesTo": { "kind": "connection" },
+    "check": {
+      "when": "true",
+      "assert": "fromHighV >= toVihV",
+      "message": "A {fromHighV} V logic high does not reach the receiver's {toVihV} V input-high threshold. This link is unreliable — add a level shifter."
+    },
+    "citation": "Receiver's datasheet, recommended operating conditions (VIH)",
+    "enabled": true,
+    "builtin": false
+  },
+  {
+    "id": "rail-exceeds-abs-max",
+    "name": "Supply rail exceeds the part's absolute maximum",
+    "description": "Absolute maximum is a survival limit, not an operating one: a part is not guaranteed to work AT it, only to not be destroyed. A rail above it is a build that damages itself on power-up.",
+    "severity": "error",
+    "appliesTo": { "kind": "block" },
+    "check": {
+      "when": "true",
+      "assert": "railV <= absMaxVddV",
+      "message": "This part sits on a {railV} V rail but its absolute maximum supply is {absMaxVddV} V. Powering it destroys the part."
+    },
+    "citation": "Part datasheet, absolute maximum ratings",
+    "enabled": true,
+    "builtin": false
+  },
+  {
+    "id": "rail-below-recommended-min",
+    "name": "Supply rail below the part's recommended minimum",
+    "description": "Below the recommended minimum a part is out of its guaranteed operating window: it often still runs, which is exactly the problem. Behaviour becomes temperature- and sample-dependent, and a coin-cell design crosses this line as the cell depletes rather than at build time.",
+    "severity": "warning",
+    "appliesTo": { "kind": "block" },
+    "check": {
+      "when": "true",
+      "assert": "railV >= vddMinV",
+      "message": "This part sits on a {railV} V rail but is only specified down to {vddMinV} V. It may run, but nothing about its behaviour is guaranteed here."
+    },
+    "citation": "Part datasheet, recommended operating conditions",
+    "enabled": true,
+    "builtin": false
+  },
+  {
+    "id": "battery-life-below-target",
+    "name": "Estimated battery life misses the design target",
+    "description": "Ties the archetype's stated goal to the computed budget, so the target is checked rather than merely aspired to. The estimate is only as good as its duty assumptions, which are assumptions and are labelled as such — this finding is a prompt to look, not a verdict.",
+    "severity": "warning",
+    "appliesTo": { "kind": "project" },
+    "check": {
+      "when": "true",
+      "assert": "estimatedLifeYears >= targetLifeYears",
+      "message": "Estimated life is {estimatedLifeYears} years against a {targetLifeYears} year target, drawing {avgCurrentUa} µA average."
+    },
+    "enabled": true,
+    "builtin": false
+  },
+  {
+    "id": "part-is-end-of-life",
+    "name": "Part is end-of-life",
+    "description": "Selector-only rule: `appliesTo` does the work and the assertion is simply false, so every part matching the selector reports. Designing in an EOL part is cheap to fix now and expensive once the board is laid out.",
+    "severity": "warning",
+    "appliesTo": { "kind": "block", "lifecycle": "eol" },
+    "check": {
+      "when": "true",
+      "assert": "false",
+      "message": "This part is marked end-of-life. Choose a replacement before the design settles around it."
+    },
+    "enabled": true,
+    "builtin": false
+  }
+]

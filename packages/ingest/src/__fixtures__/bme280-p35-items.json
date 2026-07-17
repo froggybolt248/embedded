@@ -1,0 +1,1250 @@
+[
+ {
+  "str": "Bosch Sensortec |",
+  "x": 70.92,
+  "y": 809.04,
+  "width": 87.14152799999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "BME280 Data sheet",
+  "x": 160.92204,
+  "y": 809.04,
+  "width": 89.39697600000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "35 |",
+  "x": 493.43664,
+  "y": 810.7232399999999,
+  "width": 16.39416,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "60",
+  "x": 512.64,
+  "y": 810.72,
+  "width": 11.055600000000045,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Modifications reserved | Data subject to change without notice",
+  "x": 70.68,
+  "y": 26.04,
+  "width": 178.31349600000013,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Document number: BST-BME280-DS001-23 Revision_1.23_012022",
+  "x": 326.04,
+  "y": 24.72,
+  "width": 196.07683199999943,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "6.3.2",
+  "x": 70.92,
+  "y": 759.72,
+  "width": 24.611471999999992,
+  "height": 11.04,
+  "rotated": false
+ },
+ {
+  "str": "SPI read",
+  "x": 106.92,
+  "y": 759.72,
+  "width": 46.75200000000002,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "Reading is done by lowering CSB and first sending one control byte. The control bytes consist of the",
+  "x": 70.92,
+  "y": 741.84,
+  "width": 453.3692399999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "SPI register address (= full register address without bit 7) and the read command (bit 7 = RW = ‘1’).",
+  "x": 70.9100400000001,
+  "y": 730.4358000000001,
+  "width": 453.4270079999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "After writing the control byte, data is sent out of the SDO pin (SDI in 3-wire mode); the register address",
+  "x": 70.9100400000001,
+  "y": 718.9120800000001,
+  "width": 453.3971279999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "is automatically incremented. The SPI read protocol is depicted in",
+  "x": 70.9100400000001,
+  "y": 707.38836,
+  "width": 290.0371920000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Figure 13",
+  "x": 363.70416000000006,
+  "y": 707.38836,
+  "width": 42.260280000000016,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": ".",
+  "x": 405.94452,
+  "y": 707.38836,
+  "width": 2.7688800000000007,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Start",
+  "x": 119.4726,
+  "y": 668.7401,
+  "width": 10.340076000000012,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "RW",
+  "x": 134.5092,
+  "y": 668.7401,
+  "width": 8.12364800000001,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "Stop",
+  "x": 466.28991999999994,
+  "y": 668.7401,
+  "width": 10.037391999999992,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 137.3407,
+  "y": 650.3666,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 149.5457,
+  "y": 650.3666,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 161.75070000000002,
+  "y": 650.3666,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 173.95570000000004,
+  "y": 650.3666,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "0",
+  "x": 186.16070000000005,
+  "y": 650.3666,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 198.36570000000006,
+  "y": 650.3666,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 210.57070000000007,
+  "y": 650.3666,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "0",
+  "x": 222.77570000000009,
+  "y": 650.3666,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit15",
+  "x": 232.63734,
+  "y": 650.3666,
+  "width": 10.720872000000002,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit14",
+  "x": 248.35737999999998,
+  "y": 650.3666,
+  "width": 10.720871999999972,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit13",
+  "x": 264.3703399999999,
+  "y": 650.3666,
+  "width": 10.720871999999972,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit12",
+  "x": 280.38329999999974,
+  "y": 650.3666,
+  "width": 10.720871999999972,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit11",
+  "x": 295.7127799999996,
+  "y": 650.3666,
+  "width": 10.720871999999972,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit10",
+  "x": 311.1398999999995,
+  "y": 650.3666,
+  "width": 10.720871999999972,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit9",
+  "x": 327.54341999999997,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit8",
+  "x": 341.70121999999986,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit7",
+  "x": 355.5660999999998,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit6",
+  "x": 369.3333399999997,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit5",
+  "x": 383.1982199999996,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit4",
+  "x": 396.9654599999995,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit3",
+  "x": 411.1232599999994,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit2",
+  "x": 425.2810599999993,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit1",
+  "x": 438.7553799999992,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "bit0",
+  "x": 452.2296999999991,
+  "y": 650.3666,
+  "width": 7.9869519999999925,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "CSB",
+  "x": 466.2884,
+  "y": 658.1317,
+  "width": 9.993453999999973,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "=",
+  "x": 469.90108000000004,
+  "y": 650.804178,
+  "width": 2.851088,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "1",
+  "x": 469.90108000000004,
+  "y": 643.4766559999999,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "Data byte",
+  "x": 397.062,
+  "y": 681.2078,
+  "width": 22.047112000000013,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "Data register - address F7h",
+  "x": 378.1199,
+  "y": 669.615,
+  "width": 59.93240839999985,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "Register address (F6h)",
+  "x": 162.3364,
+  "y": 669.615,
+  "width": 50.34806600000009,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "CSB",
+  "x": 119.5703,
+  "y": 658.1316,
+  "width": 9.993454000000002,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "=",
+  "x": 123.18298,
+  "y": 650.804078,
+  "width": 2.851088,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "0",
+  "x": 123.18298,
+  "y": 643.476556,
+  "width": 2.714392,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "Control byte",
+  "x": 167.0231,
+  "y": 681.2078,
+  "width": 28.784272000000023,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "Data byte",
+  "x": 280.4803,
+  "y": 681.2078,
+  "width": 22.047112000000013,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "Data register - address F6h",
+  "x": 261.5382,
+  "y": 669.615,
+  "width": 59.93240839999985,
+  "height": 5.4683,
+  "rotated": false
+ },
+ {
+  "str": "Figure 13: SPI multiple byte read",
+  "x": 70.92,
+  "y": 618.6,
+  "width": 145.43392799999995,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "6.4",
+  "x": 70.92,
+  "y": 596.04,
+  "width": 16.752000000000002,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "Interface parameter specification",
+  "x": 99.24,
+  "y": 596.04,
+  "width": 174.19440000000006,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "6.4.1",
+  "x": 70.92,
+  "y": 576.24,
+  "width": 24.611471999999992,
+  "height": 11.04,
+  "rotated": false
+ },
+ {
+  "str": "General interface parameters",
+  "x": 106.92,
+  "y": 576.24,
+  "width": 156.12,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "The general interface parameters are given in",
+  "x": 70.92,
+  "y": 559.56,
+  "width": 202.29357599999986,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Table 32",
+  "x": 275.87688,
+  "y": 559.56,
+  "width": 37.81712399999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "below.",
+  "x": 316.434,
+  "y": 559.56,
+  "width": 28.324248000000065,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Table 32: interface parameters",
+  "x": 70.92,
+  "y": 536.4,
+  "width": 122.58630000000005,
+  "height": 9,
+  "rotated": false
+ },
+ {
+  "str": "Parameter",
+  "x": 81.12,
+  "y": 503.88,
+  "width": 48.867744000000016,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Symbol",
+  "x": 205.8,
+  "y": 503.88,
+  "width": 36.01038000000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Condition",
+  "x": 298.56,
+  "y": 503.88,
+  "width": 46.64267999999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Min",
+  "x": 391.32,
+  "y": 503.88,
+  "width": 17.122235999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Typ",
+  "x": 426.12,
+  "y": 503.88,
+  "width": 17.003712000000043,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Max",
+  "x": 463.92,
+  "y": 503.88,
+  "width": 19.332359999999976,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Unit",
+  "x": 507.12,
+  "y": 503.88,
+  "width": 19.396103999999994,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Input low level",
+  "x": 77.4,
+  "y": 484.68,
+  "width": 63.27687600000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Vil_si",
+  "x": 214.92,
+  "y": 484.68,
+  "width": 17.75532000000003,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO=1.2 V to 3. 6V",
+  "x": 277.2,
+  "y": 484.68,
+  "width": 89.32067999999992,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "20",
+  "x": 468.12,
+  "y": 484.68,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%VDDI",
+  "x": 503.4,
+  "y": 484.68,
+  "width": 26.638560000000048,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "O",
+  "x": 514.32,
+  "y": 470.16,
+  "width": 5.041440000000001,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Input high level",
+  "x": 77.4,
+  "y": 454.44,
+  "width": 67.23398400000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Vih_si",
+  "x": 213.84,
+  "y": 454.44,
+  "width": 19.915752000000012,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO=1.2 V to 3.6 V",
+  "x": 277.2,
+  "y": 454.44,
+  "width": 89.32331999999988,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "80",
+  "x": 394.32,
+  "y": 454.44,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%VDDI",
+  "x": 503.4,
+  "y": 454.44,
+  "width": 26.638560000000048,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "O",
+  "x": 514.32,
+  "y": 439.92,
+  "width": 5.041440000000001,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Output low level I",
+  "x": 77.4,
+  "y": 424.2,
+  "width": 76.56000000000004,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "2",
+  "x": 153.96,
+  "y": 427.68,
+  "width": 3.7200000000000006,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "C",
+  "x": 157.68,
+  "y": 424.2,
+  "width": 7.191120000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Vol_SDI",
+  "x": 210.72,
+  "y": 424.2,
+  "width": 26.043240000000004,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO=1.62 V, Iol=3 mA",
+  "x": 272.28,
+  "y": 424.2,
+  "width": 99.28072799999987,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "20",
+  "x": 468.12,
+  "y": 424.2,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%VDDI",
+  "x": 503.4,
+  "y": 424.2,
+  "width": 26.638560000000048,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "O",
+  "x": 514.32,
+  "y": 409.68,
+  "width": 5.041440000000001,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Output low level I",
+  "x": 77.4,
+  "y": 393.96,
+  "width": 76.56000000000004,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "2",
+  "x": 153.96,
+  "y": 397.44,
+  "width": 3.7200000000000006,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "C",
+  "x": 157.68,
+  "y": 393.96,
+  "width": 7.191120000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Vol_SDI_1.2",
+  "x": 204.36,
+  "y": 393.96,
+  "width": 38.76024000000002,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO=1.20 V, Iol=3 mA",
+  "x": 272.28,
+  "y": 393.96,
+  "width": 99.28072799999987,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "23",
+  "x": 468.12,
+  "y": 393.96,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%VDDI",
+  "x": 503.4,
+  "y": 393.96,
+  "width": 26.638560000000048,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "O",
+  "x": 514.32,
+  "y": 379.44,
+  "width": 5.041440000000001,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Output low level SPI",
+  "x": 77.4,
+  "y": 363.72,
+  "width": 89.89584000000005,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Vol_SDO",
+  "x": 209.16,
+  "y": 363.72,
+  "width": 29.28324,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO=1.62 V, Iol=1 mA",
+  "x": 272.28,
+  "y": 363.72,
+  "width": 99.28072799999987,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "20",
+  "x": 468.12,
+  "y": 363.72,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%VDDI",
+  "x": 503.4,
+  "y": 363.72,
+  "width": 26.638560000000048,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "O",
+  "x": 514.32,
+  "y": 349.2,
+  "width": 5.041440000000001,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Output low level SPI",
+  "x": 77.4,
+  "y": 333.48,
+  "width": 89.89584000000005,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Vol_SDO_1.2",
+  "x": 202.8,
+  "y": 333.48,
+  "width": 42.007368,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO=1.20 V, Iol=1 mA",
+  "x": 272.28,
+  "y": 333.48,
+  "width": 99.28072799999987,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "23",
+  "x": 468.12,
+  "y": 333.48,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%VDDI",
+  "x": 503.4,
+  "y": 333.48,
+  "width": 26.638560000000048,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "O",
+  "x": 514.32,
+  "y": 318.96,
+  "width": 5.041440000000001,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Output high level",
+  "x": 77.4,
+  "y": 303.24,
+  "width": 74.91015599999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Voh",
+  "x": 216.84,
+  "y": 303.24,
+  "width": 13.803168000000015,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO",
+  "x": 271.2,
+  "y": 303.24,
+  "width": 22.800000000000004,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "=1.62 V, Ioh=1 mA",
+  "x": 294.12,
+  "y": 303.24,
+  "width": 78.52072799999985,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "(SDO, SDI)",
+  "x": 296.64,
+  "y": 289.2,
+  "width": 50.481263999999946,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "80",
+  "x": 394.32,
+  "y": 303.24,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%VDDI",
+  "x": 503.4,
+  "y": 303.24,
+  "width": 26.638560000000048,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "O",
+  "x": 514.32,
+  "y": 288.72,
+  "width": 5.041440000000001,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Output high level",
+  "x": 77.4,
+  "y": 272.88,
+  "width": 74.91015599999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Voh_1.2",
+  "x": 210.6,
+  "y": 272.88,
+  "width": 26.399640000000005,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "VDDIO",
+  "x": 271.2,
+  "y": 272.88,
+  "width": 22.800000000000004,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "=1.20 V, Ioh=1 mA",
+  "x": 294.12,
+  "y": 272.88,
+  "width": 78.52072799999985,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "(SDO, SDI)",
+  "x": 296.64,
+  "y": 258.96,
+  "width": 50.481263999999946,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "60",
+  "x": 394.32,
+  "y": 272.88,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "%VDDI",
+  "x": 503.4,
+  "y": 272.88,
+  "width": 26.638560000000048,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "O",
+  "x": 514.32,
+  "y": 258.48,
+  "width": 5.041440000000001,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "Pull-up resistor",
+  "x": 77.4,
+  "y": 242.64,
+  "width": 66.54973199999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Rpull",
+  "x": 215.16,
+  "y": 242.64,
+  "width": 17.275104,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Internal CSB pull-up",
+  "x": 277.2,
+  "y": 242.64,
+  "width": 89.41810799999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "resistance to VDDIO",
+  "x": 280.68,
+  "y": 228.72,
+  "width": 82.32182399999992,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "70",
+  "x": 394.32,
+  "y": 242.64,
+  "width": 11.05559999999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "120",
+  "x": 426.36,
+  "y": 242.64,
+  "width": 16.573439999999977,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "190",
+  "x": 465.36,
+  "y": 242.64,
+  "width": 16.573439999999977,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "k",
+  "x": 510.48,
+  "y": 242.64,
+  "width": 4.98,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Ω",
+  "x": 515.52,
+  "y": 242.64,
+  "width": 7.649280000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "I",
+  "x": 77.4,
+  "y": 212.4,
+  "width": 2.759999999999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "2",
+  "x": 80.16,
+  "y": 215.88,
+  "width": 3.6000000000000103,
+  "height": 6.48,
+  "rotated": false
+ },
+ {
+  "str": "C bus load capacitor",
+  "x": 83.76,
+  "y": 212.4,
+  "width": 91.01945999999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Cb",
+  "x": 218.4,
+  "y": 212.4,
+  "width": 10.802879999999977,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "On SDI and SCK",
+  "x": 284.16,
+  "y": 212.4,
+  "width": 75.51273599999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "400",
+  "x": 465.36,
+  "y": 212.4,
+  "width": 16.573439999999977,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "pF",
+  "x": 510.96,
+  "y": 212.4,
+  "width": 11.603400000000045,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "6.4.2",
+  "x": 70.92,
+  "y": 170.76,
+  "width": 24.611471999999992,
+  "height": 11.04,
+  "rotated": false
+ },
+ {
+  "str": "I²C timings",
+  "x": 106.92,
+  "y": 170.76,
+  "width": 57.36,
+  "height": 12,
+  "rotated": false
+ },
+ {
+  "str": "For I²C timings, the following abbreviations are used:",
+  "x": 70.92,
+  "y": 154.08,
+  "width": 233.36777999999984,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.91771999999997,
+  "y": 141.24156000000002,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "“S&F mode” = standard and fast mode",
+  "x": 106.91543999999998,
+  "y": 141.24156000000002,
+  "width": 170.14568399999982,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.90775999999997,
+  "y": 129.00072000000003,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "“HS mode” = high speed mode",
+  "x": 106.90547999999997,
+  "y": 129.00072000000003,
+  "width": 136.31056799999988,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "•",
+  "x": 88.90775999999997,
+  "y": 116.87940000000003,
+  "width": 4.581600000000001,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Cb = bus capacitance on SDA line",
+  "x": 106.90547999999997,
+  "y": 116.87940000000003,
+  "width": 150.00950399999996,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "All other naming refers to I²C specification 2.1 (January 2000).",
+  "x": 70.92,
+  "y": 90.84,
+  "width": 275.02249200000006,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "The I²C timing diagram is in",
+  "x": 70.91004000000004,
+  "y": 62.87232,
+  "width": 122.15641199999999,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Figure 14",
+  "x": 195.9269639999999,
+  "y": 62.87232,
+  "width": 42.16167600000016,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": ". The corresponding values are given in",
+  "x": 238.06871999999998,
+  "y": 62.87232,
+  "width": 174.9424199999998,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": "Table 33",
+  "x": 415.6754400000001,
+  "y": 62.87232,
+  "width": 37.69760399999997,
+  "height": 9.96,
+  "rotated": false
+ },
+ {
+  "str": ".",
+  "x": 453.353124,
+  "y": 62.87232,
+  "width": 2.7688800000000007,
+  "height": 9.96,
+  "rotated": false
+ }
+]

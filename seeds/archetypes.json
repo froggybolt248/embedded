@@ -1,0 +1,188 @@
+[
+  {
+    "id": "coin-cell-sensor",
+    "name": "Coin-cell environment sensor",
+    "description": "A sensor that sleeps almost all the time and wakes to take a reading. The whole design is a fight against average current: the radio and the sensor are awake for milliseconds, and everything else is sleep.",
+    "recipe": {
+      "powerTarget": { "batteryCapacityMah": 220, "batteryLabel": "CR2032 coin cell", "minLifeYears": 1 },
+      "suggestedBlocks": [
+        {
+          "name": "MCU",
+          "role": "mcu",
+          "hint": "Pick for sleep current, not speed — it sets the floor the whole design sits on.",
+          "pick": { "q": "nRF52", "category": "mcu", "prefer": ["nRF52840", "nRF52832"] },
+          "duty": { "active": { "everySec": 60, "forMs": 200 } }
+        },
+        {
+          "name": "Environment sensor",
+          "role": "sensor",
+          "hint": "Measures on demand, then returns to sleep. Forced mode beats continuous.",
+          "pick": { "q": "BME BMP", "category": "sensor", "prefer": ["BME280", "BMP280"] },
+          "duty": { "active": { "everySec": 60, "forMs": 10 } }
+        },
+        {
+          "name": "Regulator",
+          "role": "power",
+          "hint": "Quiescent current flows 24/7 — on a coin cell a sloppy LDO can outdraw the MCU.",
+          "pick": { "q": "regulator LDO", "category": "power", "prefer": ["AP2112K-3.3"] }
+        }
+      ],
+      "phaseChecklists": {
+        "bringup": [
+          "Measure sleep current before anything else — it decides the lifetime",
+          "Confirm the sensor actually returns to sleep after a reading"
+        ]
+      }
+    }
+  },
+  {
+    "id": "lora-node",
+    "name": "LoRa mesh node",
+    "description": "A long-range radio node. Transmit is a brief, brutal current spike inside a much longer listening window — the two must be budgeted separately or the estimate is nonsense.",
+    "recipe": {
+      "powerTarget": { "batteryCapacityMah": 3000, "batteryLabel": "18650 cell", "minLifeYears": 1 },
+      "suggestedBlocks": [
+        {
+          "name": "MCU",
+          "role": "mcu",
+          "hint": "Needs SPI for the radio and a low-power stop mode between packets.",
+          "pick": { "q": "STM32L nRF52", "category": "mcu", "prefer": ["STM32L432KCUx", "nRF52840"] },
+          "duty": { "active": { "everySec": 60, "forMs": 2000 } }
+        },
+        {
+          "name": "LoRa radio",
+          "role": "radio",
+          "hint": "TX draws ~100 mA but only for the airtime of a packet; RX is smaller and far longer.",
+          "pick": { "q": "SX126 SX127 RFM95", "category": "radio", "prefer": ["SX1262IMLTRT", "RFM95W-868S2"] },
+          "duty": {
+            "tx": { "everySec": 60, "forMs": 80 },
+            "rx": { "everySec": 60, "forMs": 2000 }
+          }
+        },
+        {
+          "name": "Regulator",
+          "role": "power",
+          "hint": "Must survive the TX current step without the rail sagging — bulk capacitance matters here.",
+          "pick": { "q": "regulator buck", "category": "power", "prefer": ["AP2112K-3.3"] }
+        }
+      ],
+      "phaseChecklists": {
+        "bringup": [
+          "Never power the radio without an antenna or a 50 Ω load attached",
+          "Check the rail with a scope during TX, not just a multimeter"
+        ]
+      }
+    }
+  },
+  {
+    "id": "eink-console",
+    "name": "E-ink weather console",
+    "description": "A display that costs nothing to keep showing an image and a lot to change it. Power is dominated by refresh rate — how often you update is the whole design decision.",
+    "recipe": {
+      "powerTarget": { "batteryCapacityMah": 2000, "batteryLabel": "LiPo pouch", "minLifeYears": 1 },
+      "suggestedBlocks": [
+        {
+          "name": "MCU",
+          "role": "mcu",
+          "hint": "Wakes, fetches, redraws, sleeps. Wi-Fi parts are convenient but hurt the average.",
+          "pick": { "q": "ESP32 nRF52", "category": "mcu", "prefer": ["nRF52840"] },
+          "duty": { "active": { "everySec": 3600, "forMs": 8000 } }
+        },
+        {
+          "name": "E-ink display",
+          "role": "display",
+          "hint": "Draws current only while refreshing — holding an image is free.",
+          "pick": { "q": "eink epaper display", "category": "display", "prefer": [] },
+          "duty": { "refresh": { "everySec": 3600, "forMs": 3000 } }
+        },
+        {
+          "name": "Environment sensor",
+          "role": "sensor",
+          "hint": "Local temperature and humidity to pair with the forecast.",
+          "pick": { "q": "BME BMP", "category": "sensor", "prefer": ["BME280", "BMP280"] },
+          "duty": { "active": { "everySec": 3600, "forMs": 10 } }
+        }
+      ],
+      "phaseChecklists": {
+        "bringup": ["Never leave an e-ink panel mid-refresh — it can ghost or damage the film"]
+      }
+    }
+  },
+  {
+    "id": "rocket-avionics",
+    "name": "Rocket avionics",
+    "description": "Flies once, for a minute, and must not fail. Power is not the constraint — the pyro current spike, the brownout it can cause, and never firing a channel by accident are.",
+    "recipe": {
+      "powerTarget": { "batteryCapacityMah": 500, "batteryLabel": "1S LiPo", "minLifeYears": 0.02 },
+      "suggestedBlocks": [
+        {
+          "name": "Flight computer",
+          "role": "mcu",
+          "hint": "Logs continuously through the flight — no sleeping here.",
+          "pick": { "q": "STM32", "category": "mcu", "prefer": ["STM32L432KCUx"] },
+          "duty": { "active": { "everySec": 1, "forMs": 1000 } }
+        },
+        {
+          "name": "Barometer",
+          "role": "sensor",
+          "hint": "Apogee detection. Sample fast — this is the one sensor that decides the flight.",
+          "pick": { "q": "BMP barometric pressure", "category": "sensor", "prefer": ["BMP280"] },
+          "duty": { "active": { "everySec": 1, "forMs": 1000 } }
+        },
+        {
+          "name": "IMU",
+          "role": "sensor",
+          "hint": "Orientation and launch detection; the accelerometer confirms liftoff.",
+          "pick": { "q": "IMU accelerometer gyro", "category": "sensor", "prefer": ["LSM6DSL", "MPU-6050"] },
+          "duty": { "active": { "everySec": 1, "forMs": 1000 } }
+        },
+        {
+          "name": "Pyro channel",
+          "role": "actuator",
+          "hint": "Amps for milliseconds. The spike browns out everything else unless there is bulk capacitance.",
+          "pick": { "q": "mosfet driver", "category": "actuator-driver", "prefer": [] },
+          "duty": { "active": { "everySec": 60, "forMs": 50 } }
+        }
+      ],
+      "phaseChecklists": {
+        "bringup": [
+          "Test continuity with a lamp, never a live charge",
+          "Confirm the pyro output is low through power-up and reset — not just in the main loop"
+        ]
+      }
+    }
+  },
+  {
+    "id": "motion-control",
+    "name": "Motion control",
+    "description": "A driven axis. The motor is the load and the noise source: stall current sets the supply, and the driver's heat sets the enclosure.",
+    "recipe": {
+      "powerTarget": { "batteryCapacityMah": 5000, "batteryLabel": "bench supply / 2S LiPo" },
+      "suggestedBlocks": [
+        {
+          "name": "MCU",
+          "role": "mcu",
+          "hint": "Needs timers for step/dir or PWM, and to stay responsive under load.",
+          "pick": { "q": "STM32", "category": "mcu", "prefer": ["STM32L432KCUx"] },
+          "duty": { "active": { "everySec": 1, "forMs": 1000 } }
+        },
+        {
+          "name": "Motor driver",
+          "role": "actuator",
+          "hint": "Size for STALL current, not running current — stall is what you actually hit.",
+          "pick": { "q": "stepper motor driver", "category": "actuator-driver", "prefer": ["TMC2209-LA"] },
+          "duty": { "active": { "everySec": 10, "forMs": 2000 } }
+        },
+        {
+          "name": "Regulator",
+          "role": "power",
+          "hint": "Keep the logic rail clean and away from the motor rail's switching noise.",
+          "pick": { "q": "regulator buck", "category": "power", "prefer": ["AP2112K-3.3"] }
+        }
+      ],
+      "phaseChecklists": {
+        "bringup": ["Current-limit the supply before the first move", "Check driver temperature after a stall test"]
+      }
+    }
+  }
+]
