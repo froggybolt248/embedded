@@ -8,7 +8,8 @@ import { datasheetRoutes } from "./routes/datasheets.js";
 import { kicadRoutes } from "./routes/kicad.js";
 import { blockRoutes } from "./routes/blocks.js";
 import { connectionRoutes } from "./routes/connections.js";
-import { seedArchetypes } from "./services/seed.js";
+import { findingRoutes } from "./routes/findings.js";
+import { seedArchetypes, seedRules } from "./services/seed.js";
 
 export interface AppOptions {
   db?: Db;
@@ -20,6 +21,10 @@ export function buildApp(opts: AppOptions = {}) {
   const db = opts.db ?? createDb();
   migrateDb(db);
   seedArchetypes(db);
+  // The rules ARE the electrical knowledge — an app that boots without them
+  // silently reports a clean design, which is the worst possible failure here.
+  // Insert-only, so a user's edits to a seeded rule survive the next boot.
+  seedRules(db);
   app.decorate("db", db);
 
   // Registered here rather than inside a route plugin because two sibling
@@ -37,6 +42,7 @@ export function buildApp(opts: AppOptions = {}) {
   app.register(kicadRoutes, { prefix: "/api" });
   app.register(blockRoutes, { prefix: "/api" });
   app.register(connectionRoutes, { prefix: "/api" });
+  app.register(findingRoutes, { prefix: "/api" });
 
   return app;
 }
