@@ -9,6 +9,17 @@ process.env["EMBEDDED_DATA_DIR"] = dataDir;
 
 const { buildApp } = await import("./app.js");
 
+// Uploading a datasheet grounds the part, and a thin read escalates to the
+// vision tier whenever a provider answers (see deepen.ts `healthyProvider`).
+// This suite is about the upload route, not about extraction quality, so it
+// pins the provider at a port nothing listens on: the escalation is then
+// skipped for a stated reason rather than because of whatever happens to be
+// installed on the machine running the tests.
+const { writeLlmSettings } = await import("./services/llm-settings.js");
+const { defaultLlmSettings } = await import("@embedded/llm");
+const base = defaultLlmSettings();
+writeLlmSettings({ ...base, ollama: { ...base.ollama, baseUrl: "http://127.0.0.1:1" } });
+
 /**
  * A structurally valid PDF with a text layer and no spec tables. Enough for
  * pdfjs to open and read, which is the point: it proves the request reaches the

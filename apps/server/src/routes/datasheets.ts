@@ -1,15 +1,9 @@
 import { createHash } from "node:crypto";
-import { createReadStream, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import {
-  appDataDir,
-  createComponentsRepo,
-  createDatasheetsRepo,
-  createExtractionRunsRepo,
-  datasheetsDir,
-} from "@embedded/db";
+import { createComponentsRepo, createDatasheetsRepo, createExtractionRunsRepo, datasheetsDir } from "@embedded/db";
 import {
   ExtractionFields,
   LoadedPdf,
@@ -21,24 +15,10 @@ import {
 } from "@embedded/ingest";
 import { createLlmProvider } from "@embedded/llm";
 import { readLlmSettings } from "../services/llm-settings.js";
+import { pageCachePath, renderPageCached } from "../services/page-cache.js";
 
 /** live progress for in-flight extractions; entries removed once a run settles */
 const progressMap = new Map<string, IngestProgress>();
-
-function pageCachePath(sha256: string, page: number): string {
-  const dir = join(appDataDir(), "library", "pages", sha256);
-  mkdirSync(dir, { recursive: true });
-  return join(dir, `${page}.png`);
-}
-
-/** 150-DPI page PNG, rendered once and cached on disk per datasheet sha. */
-async function renderPageCached(pdf: LoadedPdf, sha256: string, page: number): Promise<Buffer> {
-  const file = pageCachePath(sha256, page);
-  if (existsSync(file)) return readFileSync(file);
-  const rendered = await pdf.renderPage(page);
-  writeFileSync(file, rendered.png);
-  return rendered.png;
-}
 
 const CommitBody = z.object({
   fields: ExtractionFields,

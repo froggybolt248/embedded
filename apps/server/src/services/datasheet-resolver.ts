@@ -67,6 +67,46 @@
  *     slots in as a third ladder rung between `resolveFromLinks` and
  *     "give up" without changing this module's public shape.
  *
+ * Step 4 (2026-07-18) is that third rung: the vendor's OWN site search, tried
+ * only once steps 1-3 have all failed. `resolveFromVendorSearch` derives the
+ * vendor host from the recorded URL and probes a couple of the query-string
+ * conventions real vendor sites commonly use for on-site search. Trying a URL
+ * shape that doesn't exist on a given host is harmless — it 404s (or returns
+ * an unrelated page) and `fetchOnce`/`findPdfCandidates` treat that exactly
+ * like any other dead link: zero candidates, next pattern tried, eventually a
+ * clean "found nothing" rather than a guess. This is the SAME confidence gate
+ * as every other rung — `pickBestCandidate` + `MIN_CONFIDENT_SCORE` — so a
+ * search page that happens to list ten unrelated parts refuses to pick any of
+ * them, same as a vendor page would.
+ *
+ * A general public "datasheet aggregator" rung (the other half of what was
+ * asked for here) was investigated live (2026-07-18) and deliberately NOT
+ * added, because no candidate found was actually usable:
+ *
+ *   - alldatasheet.com: `robots.txt` permits crawling its search and detail
+ *     pages. But its "download" page is a gateway
+ *     (`/datasheet-pdf/download/<id>/<mfg>/<part>.html`) whose raw HTML source
+ *     contains zero occurrences of a literal `.pdf` href anywhere — verified
+ *     by searching the raw page source, not just the rendered UI. There is no
+ *     link `findPdfCandidates` could ever score, so this rung would only ever
+ *     return "no candidate": dead weight, not a fallback.
+ *   - datasheets.com (Supplyframe/Octopart's site): `robots.txt` contains
+ *     `User-agent: ClaudeBot` / `Disallow: /` — automated access by this
+ *     agent is explicitly forbidden by name. Hard "no" per the governing rule
+ *     that a source's terms are not ours to route around.
+ *   - digikey.com: `robots.txt` explicitly *allows* ClaudeBot, but its
+ *     product-search results page, fetched plain (no JS execution), contains
+ *     zero occurrences of the word "Datasheet" anywhere in the raw HTML —
+ *     the datasheet link is populated client-side after hydration, invisible
+ *     to a bare `fetch`. Making it visible would mean running a JS engine
+ *     (Puppeteer/Playwright), which is a much larger dependency and latency
+ *     cost than this ladder rung is worth, and was out of scope for this
+ *     change regardless.
+ *
+ * If a genuinely fetchable, ToS-clean, key-free aggregator shows up later, it
+ * slots in as a rung between `resolveFromVendorSearch` and "give up" without
+ * changing this module's public shape — same as the note above always said.
+ *
  * HTML parsing here is a small regex over `<a href="...">text</a>`, not a
  * dependency. A vendor product page is simple enough that a real DOM parser
  * (cheerio, linkedom — both MIT, so license would not have blocked them)
@@ -353,14 +393,74 @@ export interface ResolvedDatasheet {
   reason: string;
 }
 
+/** shorter than FETCH_TIMEOUT_MS: these are speculative probes of URL shapes that may not exist at all */
+const VENDOR_SEARCH_TIMEOUT_MS = 10_000;
+
+/**
+ * Pure — no network. The query-string conventions real vendor sites most
+ * commonly use for their own on-site search. Deliberately a short, fixed
+ * list (not an open-ended guess-anything scheme): each extra pattern is one
+ * more sequential network round trip on the failure path, and "total added
+ * latency must be bounded" is a hard constraint here. Exported so the URL
+ * derivation can be checked without a network — see
+ * `datasheet-resolver.test.ts`.
+ */
+export function vendorSearchUrls(host: string, mpn: string): string[] {
+  const q = encodeURIComponent(mpn);
+  return [`https://${host}/search?q=${q}`, `https://${host}/?s=${q}`];
+}
+
+/**
+ * Rung 4: the vendor's own site search, tried only once the recorded URL —
+ * live, archived, and crawled for links on both — has produced nothing
+ * confident. Same shape as step 2's `resolveFromLinks`: fetch a page, score
+ * its links with `findPdfCandidates`, follow the best one through `retrieve`
+ * so a 200-with-HTML "success" still gets caught. Never throws — a probed URL
+ * shape that doesn't exist on this host is a normal outcome (try the next
+ * one), not an error; the caller decides what "nothing worked at all" means.
+ */
+async function resolveFromVendorSearch(recordedUrl: string, mpn: string): Promise<ResolvedDatasheet | undefined> {
+  const host = hostOf(recordedUrl);
+  for (const searchUrl of vendorSearchUrls(host, mpn)) {
+    let outcome: FetchOutcome;
+    try {
+      outcome = await fetchOnce(searchUrl, VENDOR_SEARCH_TIMEOUT_MS);
+    } catch {
+      continue; // this convention doesn't exist on this host — try the next one
+    }
+    // A bare PDF answering a guessed *search* URL (not a specific part page)
+    // is not evidence it names this MPN — refuse rather than guess, same as
+    // everywhere else in this module.
+    if (!outcome.html) continue;
+
+    const best = pickBestCandidate(findPdfCandidates(outcome.html, searchUrl, mpn));
+    if (!best) continue;
+
+    let followed: Retrieved;
+    try {
+      followed = await retrieve(best.url, true);
+    } catch {
+      continue;
+    }
+    if (followed.html) continue;
+
+    return {
+      bytes: followed.bytes,
+      url: best.url,
+      reason: `${host} did not link ${mpn}'s datasheet from the recorded URL (or its archive); found it via ${host}'s own site search (${searchUrl}), which linked "${best.text}", fetched from ${followed.via}`,
+    };
+  }
+  return undefined;
+}
+
 /**
  * The ladder: (1) recorded URL as-is, (2) if that's HTML, the best-scoring
- * PDF link found on it. Throws with a precise, human-readable reason on
- * total failure — `deepenComponent` already treats that as a normal, catchable
- * outcome (a part that cannot ground is not a bug), so this does not need its
- * own try/catch wrapper.
+ * PDF link found on it, (3) the Internet Archive's copy of either. Throws
+ * with a precise, human-readable reason on total failure — `deepenComponent`
+ * already treats that as a normal, catchable outcome (a part that cannot
+ * ground is not a bug), so this does not need its own try/catch wrapper.
  */
-export async function resolveDatasheetPdf(recordedUrl: string, mpn: string): Promise<ResolvedDatasheet> {
+async function resolveViaRecordedUrl(recordedUrl: string, mpn: string): Promise<ResolvedDatasheet> {
   const direct = await retrieve(recordedUrl);
   if (!direct.html) {
     return { bytes: direct.bytes, url: recordedUrl, reason: `recorded URL served a PDF from ${direct.via}` };
@@ -430,4 +530,26 @@ export async function resolveDatasheetPdf(recordedUrl: string, mpn: string): Pro
       normalizeForMatch(`${best.text} ${best.url}`).includes(normalizeForMatch(mpn)) ? "MPN" : "datasheet keyword"
     })`,
   };
+}
+
+/**
+ * Public entry point. Tries the recorded-URL ladder (steps 1-3 above) in
+ * full, and only when that has exhausted itself — recorded URL dead, its
+ * archived copy dead too, and neither carried a confidently-scored link —
+ * falls through to rung 4, the vendor's own site search. `resolveViaRecordedUrl`
+ * throwing is a normal outcome here (a part that cannot ground is not a bug),
+ * not something that needs its own try/catch upstream; this function's throw
+ * on total failure carries the original reason forward so a human auditing a
+ * failed part still sees exactly what the vendor and archive said, not just
+ * that the site-search rung also came up empty.
+ */
+export async function resolveDatasheetPdf(recordedUrl: string, mpn: string): Promise<ResolvedDatasheet> {
+  try {
+    return await resolveViaRecordedUrl(recordedUrl, mpn);
+  } catch (err) {
+    const primaryMessage = err instanceof Error ? err.message : String(err);
+    const viaVendorSearch = await resolveFromVendorSearch(recordedUrl, mpn);
+    if (viaVendorSearch) return viaVendorSearch;
+    throw new Error(`${primaryMessage}; ${hostOf(recordedUrl)}'s own site search for ${mpn} also found nothing confident`);
+  }
 }

@@ -9,7 +9,7 @@ import {
   datasheetsDir,
   type Db,
 } from "@embedded/db";
-import { mergeSpecs, supersedeExtracted, type Component } from "@embedded/core";
+import { mergeSpecs, supersedeExtracted, type Component, type ComponentSpecs } from "@embedded/core";
 import {
   DETERMINISTIC_MODEL,
   LoadedPdf,
@@ -17,7 +17,10 @@ import {
   fieldsToSpecs,
   runExtraction,
 } from "@embedded/ingest";
+import { createLlmProvider, type LlmProvider } from "@embedded/llm";
 import { resolveDatasheetPdf } from "./datasheet-resolver.js";
+import { readLlmSettings } from "./llm-settings.js";
+import { renderPageCached } from "./page-cache.js";
 
 /**
  * Channel 1 → Channel 2 bridge: turn a bulk-imported KiCad skeleton into a
@@ -94,6 +97,64 @@ export function groundingState(db: Db, componentId: string): GroundingState | un
 export function isGrounded(component: Component): boolean {
   const s = component.specs;
   return s.powerStates.length > 0 || s.absoluteMax.length > 0 || s.recommendedOperating.length > 0;
+}
+
+/**
+ * Below this many electrical rows, a deterministic read is treated the same
+ * as an empty one. Zero rows is the ESP32 case this escalation exists for —
+ * the whole power-pin table lives in a scanned image, and the free tier finds
+ * nothing at all. One surviving row is still suspicious: on real datasheets a
+ * genuine abs-max/recommended-operating/power-state section is several rows,
+ * so a lone row is far more often a stray fragment (a units legend, a caption
+ * that happened to parse as a table) than the actual section — and a vision
+ * pass is cheap enough per-part to double-check rather than accept it.
+ */
+const THIN_ROW_THRESHOLD = 2;
+
+function electricalRowCount(specs: ComponentSpecs): number {
+  return specs.powerStates.length + specs.absoluteMax.length + specs.recommendedOperating.length;
+}
+
+/** "No usable electrical layer, or clearly thin" — see `THIN_ROW_THRESHOLD`. */
+function isThin(specs: ComponentSpecs): boolean {
+  return electricalRowCount(specs) < THIN_ROW_THRESHOLD;
+}
+
+/**
+ * Resolves the active LLM provider exactly as `routes/llm.ts` does
+ * (`readLlmSettings` + `createLlmProvider`) — there is only one notion of
+ * "the configured provider" in this app, and auto-grounding must not invent a
+ * second one.
+ *
+ * A healthy provider is the WHOLE gate, deliberately. `settings.onboarded`
+ * looks like a stronger "a human chose this on purpose" signal and is not
+ * one: the wizard's Skip button sets it too (see `OnboardingWizard`'s `skip`
+ * mutation), so it means "first-run setup has been seen", never "a provider
+ * was confirmed". Gating on it would have been a check that does not measure
+ * what it claims.
+ *
+ * Escalating whenever a provider actually answers is also the behaviour we
+ * want. This runs in the background off the bind path, and the default
+ * provider is local Ollama — free, offline, nobody's data leaving the
+ * machine. A paid provider only becomes active after someone deliberately
+ * enters a key, so "spends money without being asked" is not reachable here.
+ * Tests must not depend on whether the machine running them happens to have
+ * Ollama up; they pin an unreachable provider instead of relying on a flag.
+ *
+ * Never throws: escalation is a bonus, not a requirement, and any failure
+ * here (bad settings, a provider whose health check itself throws) must fall
+ * back to today's honest `unavailable` outcome rather than breaking the bind
+ * path that triggered grounding.
+ */
+async function healthyProvider(): Promise<LlmProvider | undefined> {
+  try {
+    const settings = readLlmSettings();
+    const provider = createLlmProvider(settings);
+    const health = await provider.health();
+    return health.ok ? provider : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -276,15 +337,67 @@ export async function groundFromBytes(
       fields: output.fields as unknown as Record<string, unknown>,
     });
 
-    // `verified: false` is deliberate: nothing here was seen by a human, so
-    // only the deterministic (text-layer-copied) rows earn `machine` trust.
-    // Auto-grounding must never forge a human signature.
-    const incoming = fieldsToSpecs(output.fields, datasheet.id, { verified: false });
     // This read supersedes whatever a previous machine read of this same PDF
     // contributed, rather than piling on top of it: the row names are the
     // extractor's own, they shift as it improves, and merging by name would
     // strand the old rows beside the new ones. Human-verified rows survive.
     const base = supersedeExtracted(component.specs, datasheet.id);
+
+    let fields = output.fields;
+    let tier: "deterministic" | "hybrid" = "deterministic";
+    const deterministicSpecs = mergeSpecs(base, fieldsToSpecs(output.fields, datasheet.id, { verified: false }));
+
+    // The free tier only reads text-layer tables. A datasheet whose
+    // electrical tables are scanned images — the ESP32 power-pin table that
+    // motivated this — comes back empty or nearly so. Escalate to the vision
+    // tier over these SAME bytes (no re-download), but only when a provider
+    // is actually configured and healthy; otherwise this is a no-op and the
+    // deterministic result (however thin) is what gets reported below,
+    // exactly as before this escalation existed.
+    if (isThin(deterministicSpecs)) {
+      const provider = await healthyProvider();
+      if (provider) {
+        setState(db, componentId, {
+          status: "grounding",
+          detail: "deterministic read came back thin — escalating to the vision model for image-only tables",
+        });
+        try {
+          const hybridRun = runsRepo.create({
+            datasheetId: datasheet.id,
+            model: provider.modelFor("extraction"),
+            promptVersion: PROMPT_VERSION,
+          });
+          const hybridOutput = await runExtraction({
+            pdf,
+            mode: "hybrid",
+            provider,
+            pageImage: (page) => renderPageCached(pdf, sha256, page),
+          });
+          runsRepo.update(hybridRun.id, {
+            status: "draft",
+            sectionMap: hybridOutput.sectionMap,
+            fields: hybridOutput.fields as unknown as Record<string, unknown>,
+          });
+          fields = hybridOutput.fields;
+          tier = "hybrid";
+        } catch (err) {
+          // Escalation is a bonus, not a requirement: if the vision pass
+          // itself fails (model not pulled, OOM, provider timeout), keep the
+          // deterministic read rather than losing it or throwing out of a
+          // function documented as never throwing.
+          const message = err instanceof Error ? err.message : String(err);
+          console.info(
+            `[deepen] ${componentId} (${component.mpn}): hybrid escalation failed — ${message}`,
+          );
+        }
+      }
+    }
+
+    // `verified: false` is deliberate: nothing here was seen by a human —
+    // not the deterministic tier, and not the vision tier either — so only
+    // `machine` trust is ever earned. Auto-grounding must never forge a
+    // human signature, no matter which tier found the numbers.
+    const incoming = fieldsToSpecs(fields, datasheet.id, { verified: false });
     const merged = mergeSpecs(base, incoming);
     componentsRepo.update(componentId, { specs: merged });
     dsRepo.linkComponent(datasheet.id, componentId);
@@ -293,11 +406,17 @@ export async function groundFromBytes(
     if (!grounded) {
       setState(db, componentId, {
         status: "unavailable",
-        detail: "datasheet had no machine-readable spec tables",
+        detail:
+          tier === "hybrid"
+            ? "datasheet had no machine-readable spec tables, even with the vision model"
+            : "datasheet had no machine-readable spec tables",
       });
       return { status: "unavailable", reason: "no extractable tables" };
     }
-    setState(db, componentId, { status: "grounded", detail: "grounded from datasheet" });
+    setState(db, componentId, {
+      status: "grounded",
+      detail: tier === "hybrid" ? "grounded from datasheet (vision-assisted)" : "grounded from datasheet",
+    });
     return { status: "grounded" };
   } finally {
     await pdf.close();
