@@ -56,11 +56,28 @@ export interface LibraryStats {
   byCategory: Record<string, number>;
 }
 
+/**
+ * Rank results so amateur users see usable parts first, not the raw dump:
+ * parts with extracted power states (the app's whole point) beat parts with
+ * only a datasheet link, which beat bare stubs; within a band, shorter MPNs
+ * (a rough proxy for canonical parts) then alphabetical. KiCad writes "~" as
+ * an absent-datasheet sentinel, so it counts as no link at all.
+ */
+const rankBand = sql`case
+  when coalesce(json_array_length(${components.specs}, '$.powerStates'), 0) > 0 then 0
+  when coalesce(json_extract(${components.variantAttrs}, '$.datasheet'), '') not in ('', '~') then 1
+  else 2
+end`;
+
 export function createComponentsRepo(db: Db) {
   return {
     list(filter: ListComponentsFilter = {}): Component[] {
       const where = buildWhere(filter);
-      let query = db.select().from(components).$dynamic();
+      let query = db
+        .select()
+        .from(components)
+        .orderBy(rankBand, sql`length(${components.mpn})`, components.mpn)
+        .$dynamic();
       if (where) query = query.where(where);
       if (filter.limit !== undefined) query = query.limit(filter.limit);
       if (filter.offset !== undefined) query = query.offset(filter.offset);

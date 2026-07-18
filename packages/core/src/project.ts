@@ -45,3 +45,8 @@ export const CreateProjectInput = Project.pick({ name: true }).extend({
   archetypeId: z.string().nullable().optional(),
 });
 export type CreateProjectInput = z.infer<typeof CreateProjectInput>;
+
+export const UpdateProjectInput = z.object({
+  name: z.string().trim().min(1).max(200),
+});
+export type UpdateProjectInput = z.infer<typeof UpdateProjectInput>;

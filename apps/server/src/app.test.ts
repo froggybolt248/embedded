@@ -128,6 +128,54 @@ describe("server routes", () => {
       expect(res.json().error).toBe("project not found");
     });
 
+    it("renames a project and the new name shows on get", async () => {
+      const createRes = await app.inject({
+        method: "POST",
+        url: "/api/projects",
+        payload: { name: "Old name" },
+      });
+      expect(createRes.statusCode).toBe(201);
+      const created = createRes.json();
+
+      const patchRes = await app.inject({
+        method: "PATCH",
+        url: `/api/projects/${created.id}`,
+        payload: { name: "New name" },
+      });
+      expect(patchRes.statusCode).toBe(200);
+      expect(patchRes.json().name).toBe("New name");
+
+      const getRes = await app.inject({ method: "GET", url: `/api/projects/${created.id}` });
+      expect(getRes.json().name).toBe("New name");
+    });
+
+    it("returns 404 when renaming a missing project", async () => {
+      const res = await app.inject({
+        method: "PATCH",
+        url: "/api/projects/does-not-exist",
+        payload: { name: "Anything" },
+      });
+      expect(res.statusCode).toBe(404);
+      expect(res.json().error).toBe("project not found");
+    });
+
+    it("returns 400 when renaming to an empty name", async () => {
+      const createRes = await app.inject({
+        method: "POST",
+        url: "/api/projects",
+        payload: { name: "Keeps its name" },
+      });
+      const created = createRes.json();
+
+      const res = await app.inject({
+        method: "PATCH",
+        url: `/api/projects/${created.id}`,
+        payload: { name: "   " },
+      });
+      expect(res.statusCode).toBe(400);
+      expect(res.json().error).toBe("invalid input");
+    });
+
     it("returns 400 for an invalid create body (missing name)", async () => {
       const res = await app.inject({
         method: "POST",

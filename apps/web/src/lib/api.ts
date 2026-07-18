@@ -275,6 +275,8 @@ export const api = {
     get: (id: string) => request<Project>(`/api/projects/${id}`),
     create: (input: CreateProjectInput) =>
       request<Project>("/api/projects", { method: "POST", body: JSON.stringify(input) }),
+    update: (id: string, input: { name: string }) =>
+      request<Project>(`/api/projects/${id}`, { method: "PATCH", body: JSON.stringify(input) }),
     remove: (id: string) => request<void>(`/api/projects/${id}`, { method: "DELETE" }),
     grounding: (id: string) => request<BlockGrounding[]>(`/api/projects/${id}/grounding`),
     powerBudget: (
@@ -421,6 +423,9 @@ export const api = {
         method: "PATCH",
         body: JSON.stringify(input),
       }),
+    /** one-step grounding: drop a PDF on the part, it grounds through the normal pipeline */
+    uploadDatasheet: (id: string, file: File) =>
+      upload<{ status: string; reason?: string }>(`/api/components/${id}/datasheet`, file, "file"),
     remove: (id: string) => request<void>(`/api/components/${id}`, { method: "DELETE" }),
   },
   archetypes: {

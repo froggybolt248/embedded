@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useParams } from "@tanstack/react-router";
 import { api } from "../../lib/api";
-import { Panel, PanelHeader } from "../../components/ui";
+import { Button, Panel, PanelHeader } from "../../components/ui";
 import { PhaseRail } from "./PhaseRail";
-import { type PhaseId } from "./phases";
+import { PHASES, type PhaseId } from "./phases";
 import { BlockCanvas, AddBlockBar } from "./BlockCanvas";
 import { ArchitectureProposal } from "./ArchitectureProposal";
 import { ComponentsPanel } from "./ComponentsPanel";
@@ -20,13 +20,39 @@ import { FindingsPanel } from "./FindingsPanel";
 const anyGrounding = (rows: { status: string }[] | undefined): boolean =>
   rows?.some((r) => r.status === "grounding") ?? false;
 
+/** One plain sentence per phase: what doing this step actually means. */
+const PHASE_ACTION: Record<PhaseId, string> = {
+  scope: "Write what this thing must do. One line each — numbers can come later.",
+  architecture: "Sketch the blocks and wire them. Drag to place, connect the dots to wire.",
+  components: "Bind each block to a real part. Suggestions are ranked for your library.",
+  electrical: "Set connection voltages and the wake cadence — the checks run as you go.",
+  firmware: "Generate the pin map and project files from your design.",
+  bringup: "Power it on for the first time, step by step.",
+  optimize: "Measure real currents and compare against the estimates.",
+};
+
+/**
+ * The project workspace as a guided stepper: exactly one phase on screen,
+ * Continue/Back to walk the build order, the rail free to jump anywhere. The
+ * inspector (power budget + findings) stays put — consequences are always in
+ * view no matter which step you're on.
+ */
 export function ProjectDetailPage() {
   const { projectId } = useParams({ from: "/projects/$projectId" });
   const qc = useQueryClient();
-  const [activePhase, setActivePhase] = useState<PhaseId>("scope");
+  const [activePhase, setActivePhase] = useState<PhaseId>(() => {
+    // come back to where you left off — a stepper that forgets is a form
+    const saved = localStorage.getItem(`embedded:phase:${projectId}`);
+    return PHASES.some((p) => p.id === saved) ? (saved as PhaseId) : "scope";
+  });
   const [capacityOverride, setCapacityOverride] = useState<number | null>(null);
 
-  const sectionRefs = useRef<Partial<Record<PhaseId, HTMLElement | null>>>({});
+  const goToPhase = (id: PhaseId) => {
+    setActivePhase(id);
+    localStorage.setItem(`embedded:phase:${projectId}`, id);
+    // each step starts at its top — carrying scroll position between steps is disorienting
+    window.scrollTo({ top: 0 });
+  };
 
   const { data: project } = useQuery({
     queryKey: ["project", projectId],
@@ -63,31 +89,33 @@ export function ProjectDetailPage() {
     qc.invalidateQueries({ queryKey: ["findings", projectId] });
   };
 
-  // scroll-spy: the phase whose section crosses the viewport's middle is active
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const visible = entries
-          .filter((e) => e.isIntersecting)
-          .sort((a, b) => a.boundingClientRect.top - b.boundingClientRect.top);
-        if (visible[0]) setActivePhase(visible[0].target.id as PhaseId);
-      },
-      { rootMargin: "-12% 0px -78% 0px", threshold: 0 },
-    );
-    for (const el of Object.values(sectionRefs.current)) if (el) observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
-
-  const goToPhase = (id: PhaseId) => {
-    setActivePhase(id);
-    sectionRefs.current[id]?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
-
-  const setRef = (id: PhaseId) => (el: HTMLElement | null) => {
-    sectionRefs.current[id] = el;
-  };
-
   const archetypeId = project?.archetypeId;
+  const stepIndex = PHASES.findIndex((p) => p.id === activePhase);
+  const phase = PHASES[stepIndex]!;
+  const prev = stepIndex > 0 ? PHASES[stepIndex - 1] : undefined;
+  const next = stepIndex < PHASES.length - 1 ? PHASES[stepIndex + 1] : undefined;
+
+  const surface: Record<PhaseId, ReactNode> = {
+    scope: <RequirementsPanel projectId={projectId} />,
+    architecture: (
+      <Panel>
+        <PanelHeader title="Architecture" aside="drag to place · connect handles to wire" />
+        <BlockCanvas projectId={projectId} />
+        <AddBlockBar projectId={projectId} />
+        <ArchitectureProposal projectId={projectId} onApplied={invalidate} />
+      </Panel>
+    ),
+    components: <ComponentsPanel projectId={projectId} {...(archetypeId ? { archetypeId } : {})} />,
+    electrical: (
+      <div className="space-y-4">
+        <ConnectionsPanel projectId={projectId} />
+        <WakeCadencePanel projectId={projectId} capacityOverride={capacityOverride} />
+      </div>
+    ),
+    firmware: <FirmwarePanel projectId={projectId} />,
+    bringup: <BringUpPanel projectId={projectId} {...(archetypeId ? { archetypeId } : {})} />,
+    optimize: <OptimizePanel projectId={projectId} />,
+  };
 
   return (
     <div className="flex min-h-full">
@@ -100,45 +128,37 @@ export function ProjectDetailPage() {
       />
 
       <div className="flex min-w-0 flex-1 flex-col items-start xl:flex-row">
-        {/* workspace: the phase surfaces, stacked and scroll-spied. The phase
-            rail carries the name + blurb of each, so the panels self-title and
-            we don't repeat the phase name as a second heading here. */}
-        <div className="min-w-0 flex-1 space-y-8 px-8 py-8">
-          <Section id="scope" setRef={setRef}>
-            <RequirementsPanel projectId={projectId} />
-          </Section>
+        <div className="min-w-0 flex-1 px-8 py-8">
+          {/* step header: where you are and what this step is for */}
+          <header className="mb-4">
+            <p className="num text-[10px] uppercase tracking-widest text-ink-faint">
+              step {stepIndex + 1} of {PHASES.length}
+            </p>
+            <h2 className="mt-0.5 text-lg font-semibold text-ink">{phase.label}</h2>
+            <p className="mt-0.5 text-xs text-ink-dim">{PHASE_ACTION[phase.id]}</p>
+          </header>
 
-          <Section id="architecture" setRef={setRef}>
-            <Panel>
-              <PanelHeader title="Architecture" aside="drag to place · connect handles to wire" />
-              <BlockCanvas projectId={projectId} />
-              <AddBlockBar projectId={projectId} />
-              <ArchitectureProposal projectId={projectId} onApplied={invalidate} />
-            </Panel>
-          </Section>
+          <div id={phase.id}>{surface[phase.id]}</div>
 
-          <Section id="components" setRef={setRef}>
-            <ComponentsPanel projectId={projectId} {...(archetypeId ? { archetypeId } : {})} />
-          </Section>
-
-          <Section id="electrical" setRef={setRef}>
-            <div className="space-y-4">
-              <ConnectionsPanel projectId={projectId} />
-              <WakeCadencePanel projectId={projectId} capacityOverride={capacityOverride} />
-            </div>
-          </Section>
-
-          <Section id="firmware" setRef={setRef}>
-            <FirmwarePanel projectId={projectId} />
-          </Section>
-
-          <Section id="bringup" setRef={setRef}>
-            <BringUpPanel projectId={projectId} {...(archetypeId ? { archetypeId } : {})} />
-          </Section>
-
-          <Section id="optimize" setRef={setRef}>
-            <OptimizePanel projectId={projectId} />
-          </Section>
+          {/* step footer: the one obvious way forward (and back) */}
+          <footer className="mt-6 flex items-center justify-between">
+            {prev ? (
+              <Button variant="ghost" size="md" onClick={() => goToPhase(prev.id)}>
+                ← {prev.label}
+              </Button>
+            ) : (
+              <span />
+            )}
+            {next ? (
+              <Button variant="primary" size="md" onClick={() => goToPhase(next.id)}>
+                Continue → {next.label}
+              </Button>
+            ) : (
+              <span className="text-[11px] text-ink-faint">
+                Last step — iterate here as the hardware talks back.
+              </span>
+            )}
+          </footer>
         </div>
 
         {/* inspector: the live consequences, always in view */}
@@ -151,25 +171,6 @@ export function ProjectDetailPage() {
           <FindingsPanel projectId={projectId} />
         </aside>
       </div>
-    </div>
-  );
-}
-
-/** A phase's workspace surface — the landmark the rail scroll-spies and jumps to. */
-function Section({
-  id,
-  setRef,
-  children,
-}: {
-  id: PhaseId;
-  setRef: (id: PhaseId) => (el: HTMLElement | null) => void;
-  children: ReactNode;
-}) {
-  // a div, not a section: each panel already renders its own <section>, and a
-  // second wrapping section would make "the Architecture section" ambiguous.
-  return (
-    <div id={id} ref={setRef(id)} className="scroll-mt-6">
-      {children}
     </div>
   );
 }

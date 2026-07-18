@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link, useNavigate } from "@tanstack/react-router";
+import type { Project } from "@embedded/core";
 import { api } from "../../lib/api";
+import { Button, TextInput } from "../../components/ui";
 
 export function ProjectsPage() {
   const qc = useQueryClient();
@@ -32,20 +34,13 @@ export function ProjectsPage() {
       navigate({ to: "/projects/$projectId", params: { projectId: project.id } });
     },
   });
-  const remove = useMutation({
-    mutationFn: api.projects.remove,
-    onSuccess: () => qc.invalidateQueries({ queryKey: ["projects"] }),
-  });
 
   const chosen = archetypes?.find((a) => a.id === archetypeId);
 
   return (
     <div className="mx-auto max-w-3xl p-8">
       <h1 className="mb-1 text-xl font-semibold">Projects</h1>
-      <p className="mb-6 text-sm text-ink-dim">
-        Start from something like what you're building. The architecture arrives sketched, and the
-        electrical numbers follow from the parts you pick.
-      </p>
+      <p className="mb-6 text-sm text-ink-dim">Pick a starting point, or start blank.</p>
 
       <form
         className="mb-8 rounded-lg border border-line bg-surface-1 p-4"
@@ -72,7 +67,7 @@ export function ProjectsPage() {
                 }`}
               >
                 <div className="text-sm font-medium text-ink">{a.name}</div>
-                <div className="mt-1 line-clamp-3 text-[11px] leading-relaxed text-ink-faint">
+                <div className="mt-1 line-clamp-2 text-[11px] leading-relaxed text-ink-faint">
                   {a.description}
                 </div>
                 <div className="num mt-2 text-[10px] text-ink-faint">
@@ -95,7 +90,7 @@ export function ProjectsPage() {
           >
             <div className="text-sm font-medium text-ink-dim">Something else</div>
             <div className="mt-1 text-[11px] leading-relaxed text-ink-faint">
-              Start from an empty canvas and add blocks yourself.
+              Empty canvas — add your own blocks.
             </div>
           </button>
         </div>
@@ -120,32 +115,107 @@ export function ProjectsPage() {
       {isLoading && <p className="text-sm text-ink-faint">Loading…</p>}
       {projects?.length === 0 && (
         <div className="rounded-lg border border-dashed border-line p-10 text-center text-sm text-ink-faint">
-          No projects yet. Pick what you're building above — a coin-cell sensor, a LoRa node, a
-          flight computer…
+          No projects yet — pick a starting point above.
         </div>
       )}
       <ul className="flex flex-col gap-2">
         {projects?.map((p) => (
-          <li
-            key={p.id}
-            className="group flex items-center justify-between rounded-lg border border-line bg-surface-1 px-4 py-3"
-          >
-            <Link to="/projects/$projectId" params={{ projectId: p.id }} className="flex-1">
-              <div className="text-sm font-medium text-ink hover:text-accent">{p.name}</div>
-              <div className="num text-[11px] text-ink-faint">
-                created {new Date(p.createdAt).toLocaleString()}
-              </div>
-            </Link>
-            <button
-              onClick={() => remove.mutate(p.id)}
-              className="invisible rounded px-2 py-1 text-xs text-ink-faint hover:text-danger group-hover:visible"
-              title="Delete project"
-            >
-              delete
-            </button>
-          </li>
+          <ProjectRow key={p.id} project={p} />
         ))}
       </ul>
     </div>
+  );
+}
+
+/**
+ * One project in the list. Rename and delete are always visible — hidden
+ * hover-only controls read as "this app can't do that". Delete asks once,
+ * inline, instead of a modal.
+ */
+function ProjectRow({ project }: { project: Project }) {
+  const qc = useQueryClient();
+  const [renaming, setRenaming] = useState(false);
+  const [draft, setDraft] = useState(project.name);
+  const [confirming, setConfirming] = useState(false);
+
+  const invalidate = () => qc.invalidateQueries({ queryKey: ["projects"] });
+
+  const rename = useMutation({
+    mutationFn: () => api.projects.update(project.id, { name: draft.trim() }),
+    onSuccess: () => {
+      setRenaming(false);
+      invalidate();
+    },
+  });
+  const remove = useMutation({
+    mutationFn: () => api.projects.remove(project.id),
+    onSuccess: invalidate,
+  });
+
+  return (
+    <li className="flex items-center justify-between gap-3 rounded-lg border border-line bg-surface-1 px-4 py-3">
+      {renaming ? (
+        <form
+          className="flex flex-1 items-center gap-2"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (draft.trim()) rename.mutate();
+          }}
+        >
+          <TextInput
+            value={draft}
+            onChange={(e) => setDraft(e.target.value)}
+            onKeyDown={(e) => e.key === "Escape" && setRenaming(false)}
+            autoFocus
+            className="flex-1"
+          />
+          <Button type="submit" variant="primary" size="sm" disabled={!draft.trim() || rename.isPending}>
+            Save
+          </Button>
+          <Button type="button" variant="subtle" size="sm" onClick={() => setRenaming(false)}>
+            Cancel
+          </Button>
+        </form>
+      ) : (
+        <Link to="/projects/$projectId" params={{ projectId: project.id }} className="min-w-0 flex-1">
+          <div className="truncate text-sm font-medium text-ink hover:text-accent">{project.name}</div>
+          <div className="num text-[11px] text-ink-faint">
+            created {new Date(project.createdAt).toLocaleDateString()}
+          </div>
+        </Link>
+      )}
+
+      {!renaming && (
+        <div className="flex shrink-0 items-center gap-1">
+          {confirming ? (
+            <>
+              <span className="text-[11px] text-ink-dim">Delete this project?</span>
+              <Button variant="danger" size="sm" onClick={() => remove.mutate()} disabled={remove.isPending}>
+                Delete
+              </Button>
+              <Button variant="subtle" size="sm" onClick={() => setConfirming(false)}>
+                Keep
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button
+                variant="subtle"
+                size="sm"
+                onClick={() => {
+                  setDraft(project.name);
+                  setRenaming(true);
+                }}
+              >
+                Rename
+              </Button>
+              <Button variant="danger" size="sm" onClick={() => setConfirming(true)}>
+                Delete
+              </Button>
+            </>
+          )}
+        </div>
+      )}
+    </li>
   );
 }

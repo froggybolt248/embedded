@@ -80,14 +80,23 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   await page.getByPlaceholder(/My coin-cell environment sensor/i).fill("E2E Coin Cell Sensor");
   await page.getByRole("button", { name: "Start", exact: true }).click();
 
-  // Lands on the new project's detail page.
+  // Lands on the new project's detail page — the guided stepper opens on
+  // step 1, Scope.
   await expect(page).toHaveURL(/\/projects\/[^/]+$/);
-  await expect(page.getByRole("heading", { name: "E2E Coin Cell Sensor" })).toBeVisible();
+  await expect(page.getByText("step 1 of 7")).toBeVisible();
 
-  // The archetype's suggested blocks were seeded onto the project and render
-  // as nodes on the Architecture canvas. Scoped to the Architecture section so
-  // the same block names in the Components list / Power budget don't make these
-  // locators ambiguous.
+  // --- Scope: type a requirement, Add it, see it in the list. ---
+  const requirementsSection = page.locator("section", {
+    has: page.getByRole("heading", { name: "Requirements" }),
+  });
+  await requirementsSection
+    .getByPlaceholder(/must sample every 10 minutes/i)
+    .fill("must sample every 10 minutes");
+  await requirementsSection.getByRole("button", { name: "Add", exact: true }).click();
+  await expect(requirementsSection.getByText("must sample every 10 minutes")).toBeVisible();
+
+  // --- Architecture: the archetype's suggested blocks render as canvas nodes. ---
+  await page.getByRole("button", { name: /Continue → Architecture/ }).click();
   const architecture = page.locator("section", {
     has: page.getByRole("heading", { name: "Architecture" }),
   });
@@ -95,14 +104,14 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   await expect(architecture.getByText("Environment sensor", { exact: true })).toBeVisible();
   await expect(architecture.getByText("Regulator", { exact: true })).toBeVisible();
 
-  // Binding a real part to a block is the Components phase. Bind the fixture
-  // component to the "Environment sensor" block there.
+  // --- Components: bind the fixture part to the "Environment sensor" block. ---
+  await page.getByRole("button", { name: /Continue → Components/ }).click();
   const components = page.locator("section", {
     has: page.getByRole("heading", { name: "Components" }),
   });
   const sensorRow = components.locator("li").filter({ hasText: "Environment sensor" });
   await sensorRow.getByRole("button", { name: "bind a part" }).click();
-  await sensorRow.getByPlaceholder(/Search parts/i).fill("E2E-TEST-SENSOR");
+  await sensorRow.getByPlaceholder(/Search/i).fill("E2E-TEST-SENSOR");
   await expect(sensorRow.getByText(FIXTURE_MPN)).toBeVisible({ timeout: 10_000 });
   await sensorRow.getByText(FIXTURE_MPN).click();
 
@@ -114,7 +123,8 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   // 800ms, so give it real room rather than asserting on the first tick.
   await expect(sensorRow.getByText("grounded", { exact: true })).toBeVisible({ timeout: 15_000 });
 
-  // The power budget renders using the fixture's manually-sourced currents.
+  // The power budget (inspector — visible on every step) renders using the
+  // fixture's manually-sourced currents.
   const powerBudget = page.locator("section", {
     has: page.getByRole("heading", { name: "Power budget" }),
   });
@@ -125,19 +135,10 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
     powerBudget.getByText(new RegExp(`Environment sensor.*${FIXTURE_MPN}`)),
   ).toBeVisible();
 
-  // --- Requirements: type a requirement, Add it, see it in the list. ---
-  const requirementsSection = page.locator("section", {
-    has: page.getByRole("heading", { name: "Requirements" }),
-  });
-  await requirementsSection
-    .getByPlaceholder(/must sample every 10 minutes/i)
-    .fill("must sample every 10 minutes");
-  await requirementsSection.getByRole("button", { name: "Add", exact: true }).click();
-  await expect(requirementsSection.getByText("must sample every 10 minutes")).toBeVisible();
-
-  // --- Connections: wire MCU to the Environment sensor over i2c (the
+  // --- Electrical: wire MCU to the Environment sensor over i2c (the
   // default interface option) so firmware generation below has a real
   // unassigned signal to point its #error at. ---
+  await page.getByRole("button", { name: /Continue → Electrical/ }).click();
   const connectionsSection = page.locator("section", {
     has: page.getByRole("heading", { name: "Connections" }),
   });
@@ -154,6 +155,7 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   // --- Firmware: generate, see pins.h and platformio.ini, and confirm the
   // no-invented-pins #error is shown verbatim (not hidden) since the design
   // above now has a wired-but-unassigned i2c connection. ---
+  await page.getByRole("button", { name: /Continue → Firmware/ }).click();
   const firmwareSection = page.locator("section", {
     has: page.getByRole("heading", { name: "Firmware" }),
   });
@@ -166,19 +168,21 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   await expect(pinsRow.getByText(/#error/)).toBeVisible();
 
   // --- Bring-up: the heading renders and the probe-rs capability line
-  // resolves to either the present-badge or the install card — either is a
-  // pass, since whether the host has probe-rs on PATH is environmental. ---
+  // resolves to either the present-badge or the optional-install note —
+  // either is a pass, since whether the host has probe-rs is environmental. ---
+  await page.getByRole("button", { name: /Continue → Bring-up/ }).click();
   const bringUpSection = page.locator("section", {
     has: page.getByRole("heading", { name: /Bring-up/ }),
   });
   await expect(bringUpSection).toBeVisible();
   await expect(
-    bringUpSection.getByText(/probe-rs detected|probe-rs not found|Install it from/).first(),
+    bringUpSection.getByText(/probe-rs detected|Optional: install/).first(),
   ).toBeVisible({ timeout: 10_000 });
 
   // --- Optimize: the bound, grounded sensor block's power states land here
   // as estimate rows with a measured-mA input; typing a value and saving
   // should not crash the panel. ---
+  await page.getByRole("button", { name: /Continue → Optimize/ }).click();
   const optimizeSection = page.locator("section", {
     has: page.getByRole("heading", { name: "Optimize" }),
   });

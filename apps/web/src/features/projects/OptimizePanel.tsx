@@ -175,14 +175,12 @@ export function OptimizePanel({ projectId }: { projectId: string }) {
       </h2>
 
       <p className="border-b border-line px-4 py-2.5 text-[10px] text-ink-faint">
-        Enter what you actually measured, per mode, and see how it compares to the datasheet
-        estimate. A blank field means <span className="text-ink-dim">not measured</span> — it is
-        never assumed to be zero.
+        Type what your meter shows, per mode — the delta against the datasheet appears next to it.
       </p>
 
       {rows.length === 0 && (
         <div className="px-4 py-6 text-center text-xs text-ink-faint">
-          Bind a part with power states to a block and its modes land here for measurement.
+          Nothing to measure yet — this fills in once parts are bound and grounded.
         </div>
       )}
 

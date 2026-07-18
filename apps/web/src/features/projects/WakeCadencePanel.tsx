@@ -84,7 +84,7 @@ export function WakeCadencePanel({
 
       {tradeoff && tradeoff.options.length === 0 && (
         <div className="px-4 py-6 text-center text-xs text-ink-faint">
-          No grounded parts yet, so no cadence has a real cost — bind a part to a block first.
+          Fills in once a part is bound and grounded — then each wake rate gets a real battery cost.
         </div>
       )}
 

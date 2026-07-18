@@ -19,12 +19,6 @@ const STATUS_CLASS: Record<Requirement["status"], string> = {
   "at-risk": "text-warn",
 };
 
-/** "open" -> "met" -> "at-risk" -> "open" */
-function nextStatus(status: Requirement["status"]): Requirement["status"] {
-  const i = STATUSES.indexOf(status);
-  return STATUSES[(i + 1) % STATUSES.length]!;
-}
-
 const OP_GLYPH: Record<QuantifiedRequirement["op"], string> = {
   "<=": "≤",
   ">=": "≥",
@@ -104,7 +98,7 @@ export function RequirementsPanel({ projectId }: { projectId: string }) {
 
       {requirements && requirements.length === 0 && (
         <p className="px-4 py-6 text-center text-xs text-ink-faint">
-          What must this thing do? Write requirements in plain words — numbers can come later.
+          e.g. “runs a year on a coin cell” · “survives −20 °C nights” · “fits a 30 mm tube”
         </p>
       )}
 
@@ -116,9 +110,7 @@ export function RequirementsPanel({ projectId }: { projectId: string }) {
               requirement={r}
               onRemove={() => remove.mutate(r.id)}
               removing={remove.isPending && remove.variables === r.id}
-              onCycleStatus={() =>
-                update.mutate({ id: r.id, patch: { status: nextStatus(r.status) } })
-              }
+              onSetStatus={(status) => update.mutate({ id: r.id, patch: { status } })}
               onQuantify={() => {
                 clearProposal(r.id);
                 quantify.mutate(r.id);
@@ -177,7 +169,7 @@ function RequirementRow({
   requirement,
   onRemove,
   removing,
-  onCycleStatus,
+  onSetStatus,
   onQuantify,
   quantifying,
   proposal,
@@ -188,7 +180,7 @@ function RequirementRow({
   requirement: Requirement;
   onRemove: () => void;
   removing: boolean;
-  onCycleStatus: () => void;
+  onSetStatus: (status: Requirement["status"]) => void;
   onQuantify: () => void;
   quantifying: boolean;
   /** undefined: no attempt yet this session. null: asked, nothing solid came back. */
@@ -223,23 +215,32 @@ function RequirementRow({
             <button
               onClick={onQuantify}
               disabled={quantifying}
-              className="rounded px-1.5 py-0.5 text-[11px] text-ink-faint hover:text-ink-dim disabled:opacity-40"
+              title="Turn this sentence into a checkable number (AI suggestion — you approve it)"
+              className="rounded border border-line px-1.5 py-0.5 text-[11px] text-ink-faint hover:border-accent-dim hover:text-ink-dim disabled:opacity-40"
             >
               {quantifying ? "asking…" : "quantify"}
             </button>
           )}
-          <button
-            onClick={onCycleStatus}
-            className={`text-[11px] ${STATUS_CLASS[requirement.status]}`}
+          {/* a labeled select, not a mystery word that cycles on click */}
+          <select
+            value={requirement.status}
+            onChange={(e) => onSetStatus(e.target.value as Requirement["status"])}
+            title="Requirement status"
+            className={`rounded border border-line bg-surface-2 px-1 py-0.5 text-[11px] outline-none focus:border-accent-dim ${STATUS_CLASS[requirement.status]}`}
           >
-            {STATUS_LABEL[requirement.status]}
-          </button>
+            {STATUSES.map((s) => (
+              <option key={s} value={s}>
+                {STATUS_LABEL[s]}
+              </option>
+            ))}
+          </select>
           <button
             onClick={onRemove}
             disabled={removing}
-            className="invisible shrink-0 rounded px-1.5 py-0.5 text-[11px] text-ink-faint hover:text-danger group-hover:visible disabled:opacity-40"
+            title="Delete this requirement"
+            className="shrink-0 rounded px-1.5 py-0.5 text-[11px] text-ink-faint hover:text-danger disabled:opacity-40"
           >
-            remove
+            delete
           </button>
         </div>
       </div>
@@ -265,9 +266,7 @@ function RequirementRow({
       )}
 
       {proposal === null && (
-        <p className="mt-1 text-[10px] text-ink-faint">
-          no suggestion — the assistant isn't configured or had nothing solid to offer
-        </p>
+        <p className="mt-1 text-[10px] text-ink-faint">no suggestion — set up AI in Settings, or add the number yourself</p>
       )}
     </li>
   );

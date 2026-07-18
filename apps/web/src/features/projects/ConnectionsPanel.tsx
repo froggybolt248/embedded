@@ -89,8 +89,7 @@ export function ConnectionsPanel({ projectId }: { projectId: string }) {
 
       {connections && connections.length === 0 && (
         <p className="px-4 py-6 text-center text-xs text-ink-faint">
-          No connections yet — wire the MCU to a sensor and the electrical checks have something
-          to check.
+          No connections yet — add one below, or drag between blocks on the canvas.
         </p>
       )}
 

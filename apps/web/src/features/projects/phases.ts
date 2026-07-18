@@ -65,13 +65,15 @@ export function computeProgress(input: ProgressInputs): Record<PhaseId, PhasePro
         ? { fraction: 1, tone: "ok" }
         : { fraction: 0.5, tone: "accent" };
 
-  // Architecture: blocks sketched → half; wired together → done.
+  // Architecture: the archetype sketches blocks FOR you, so their mere
+  // existence is not progress — the ring stays empty (accent = "this is where
+  // you are") until the user has actually wired something.
   const architecture: PhaseProgress =
     blocks.length === 0
       ? EMPTY
       : connections.length > 0
         ? { fraction: 1, tone: "ok" }
-        : { fraction: 0.5, tone: "accent" };
+        : { fraction: 0, tone: "accent" };
 
   // Components: fraction of blocks bound to a real part.
   const components: PhaseProgress =
@@ -91,28 +93,25 @@ export function computeProgress(input: ProgressInputs): Record<PhaseId, PhasePro
       : hasFailure
         ? { fraction: groundedBound.length / bound.length, tone: "warn" }
         : groundedBound.length === 0
-          ? { fraction: 0.15, tone: "accent" }
+          ? { fraction: 0, tone: "accent" }
           : {
               fraction: groundedBound.length / bound.length,
               tone: groundedBound.length === bound.length ? "ok" : "accent",
             };
 
-  // Firmware / Bring-up have no persisted completion signal — they read as
-  // "available" (a faint accent tick) once there's a design to act on, never
-  // as done, because the app can't honestly claim the user finished them.
-  const available: PhaseProgress =
-    blocks.length > 0 ? { fraction: 0.5, tone: "accent" } : EMPTY;
+  // Firmware / Bring-up have no persisted completion signal yet, so they stay
+  // honestly empty — a ring that starts half-full on a brand-new project tells
+  // the user the app is lying about their progress.
+  const available: PhaseProgress = EMPTY;
 
   // Optimize: fraction of bound blocks the designer has entered a measurement for.
   const optimize: PhaseProgress =
-    bound.length === 0
+    bound.length === 0 || measured.length === 0
       ? EMPTY
-      : measured.length === 0
-        ? { fraction: 0.05, tone: "accent" }
-        : {
-            fraction: measured.length / bound.length,
-            tone: measured.length === bound.length ? "ok" : "accent",
-          };
+      : {
+          fraction: measured.length / bound.length,
+          tone: measured.length === bound.length ? "ok" : "accent",
+        };
 
   return {
     scope,

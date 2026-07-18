@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import type { BlockRole } from "@embedded/core";
@@ -24,17 +24,30 @@ const GROUNDING_UI: Record<GroundingStatus, { tone: Tone; pulse: boolean; label:
   partial: {
     tone: "warn",
     pulse: false,
-    label: "no currents",
-    hint: "Ratings were read, but no current-consumption table — the rail checks run, the power budget can't count it.",
+    label: "no current data",
+    hint: "Ratings were read, but the datasheet had no current table — the power budget can't count this part.",
   },
   ungrounded: { tone: "warn", pulse: false, label: "no specs", hint: "No electrical specs for this part yet." },
   unavailable: {
     tone: "muted",
     pulse: false,
     label: "no datasheet",
-    hint: "No machine-readable datasheet — enter its currents by hand, or ingest a PDF.",
+    hint: "This part has no datasheet link.",
   },
-  failed: { tone: "danger", pulse: false, label: "no datasheet", hint: "Could not read this part's datasheet." },
+  failed: {
+    tone: "danger",
+    pulse: false,
+    label: "fetch blocked",
+    hint: "The datasheet could not be downloaded — many vendor sites block automated fetches.",
+  },
+};
+
+/** every stuck state gets a way forward, phrased for that state */
+const RECOVERY_LEAD: Partial<Record<GroundingStatus, string>> = {
+  failed: "The vendor's site refused the download.",
+  unavailable: "This part has no datasheet link.",
+  partial: "The datasheet had no current-consumption table.",
+  ungrounded: "No electrical specs yet.",
 };
 
 const anyGrounding = (rows: BlockGrounding[] | undefined): boolean =>
@@ -164,27 +177,19 @@ export function ComponentsPanel({ projectId, archetypeId }: { projectId: string;
                 {pickingFor === block.id && (
                   <ComponentPicker
                     hint={hintByName.get(block.name)}
+                    role={block.role}
                     onPick={(componentId) => bind.mutate({ blockId: block.id, componentId })}
                     onCancel={() => setPickingFor(null)}
                   />
                 )}
 
-                {(state?.status === "failed" || state?.status === "unavailable") && (
-                  <p className="mt-1.5 text-[11px] text-ink-faint">
-                    {state.error ?? "This part has no datasheet link."} — add its currents by hand on the{" "}
-                    <Link
-                      to="/library/components/$componentId"
-                      params={{ componentId: block.componentId! }}
-                      className="text-accent hover:underline"
-                    >
-                      part page
-                    </Link>
-                    , or ingest the PDF from{" "}
-                    <Link to="/library/datasheets" className="text-accent hover:underline">
-                      Datasheets
-                    </Link>
-                    .
-                  </p>
+                {block.componentId && state?.status && RECOVERY_LEAD[state.status] && (
+                  <GroundingRecovery
+                    componentId={block.componentId}
+                    lead={state.error ?? RECOVERY_LEAD[state.status]!}
+                    onPickDifferent={() => setPickingFor(block.id)}
+                    onGrounded={invalidate}
+                  />
                 )}
               </div>
             </li>
@@ -192,5 +197,76 @@ export function ComponentsPanel({ projectId, archetypeId }: { projectId: string;
         })}
       </ul>
     </Panel>
+  );
+}
+
+/**
+ * A stuck grounding state, with its ways forward — right here, not three
+ * screens away. The strongest action is the one-step PDF drop: the user
+ * downloads the datasheet in their own browser (which vendor sites allow) and
+ * drops it on the button; the part grounds through the normal pipeline.
+ */
+function GroundingRecovery({
+  componentId,
+  lead,
+  onPickDifferent,
+  onGrounded,
+}: {
+  componentId: string;
+  lead: string;
+  onPickDifferent: () => void;
+  onGrounded: () => void;
+}) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const upload = useMutation({
+    mutationFn: (file: File) => api.components.uploadDatasheet(componentId, file),
+    onSuccess: onGrounded,
+  });
+
+  return (
+    <div className="mt-1.5 text-[11px] text-ink-faint">
+      <p>{lead}</p>
+      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <input
+          ref={fileRef}
+          type="file"
+          accept=".pdf,application/pdf"
+          className="hidden"
+          onChange={(e) => {
+            const f = e.target.files?.[0];
+            if (f) upload.mutate(f);
+            e.target.value = "";
+          }}
+        />
+        <button
+          onClick={() => fileRef.current?.click()}
+          disabled={upload.isPending}
+          className="text-accent hover:underline disabled:opacity-50"
+        >
+          {upload.isPending ? "reading PDF…" : "Upload its datasheet PDF"}
+        </button>
+        <Link
+          to="/library/components/$componentId"
+          params={{ componentId }}
+          className="text-accent hover:underline"
+        >
+          Enter currents by hand
+        </Link>
+        <button onClick={onPickDifferent} className="text-accent hover:underline">
+          Pick a different part
+        </button>
+      </div>
+      {upload.isError && (
+        <p className="mt-1 text-danger">
+          {upload.error instanceof Error ? upload.error.message : "upload failed"}
+        </p>
+      )}
+      {upload.isSuccess && upload.data.status !== "grounded" && (
+        <p className="mt-1 text-warn">
+          PDF read, but no usable spec tables found{upload.data.reason ? ` — ${upload.data.reason}` : ""}.
+          Enter the currents by hand instead.
+        </p>
+      )}
+    </div>
   );
 }

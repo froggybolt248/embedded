@@ -1,5 +1,5 @@
 import type { FastifyInstance } from "fastify";
-import { CreateProjectInput, type SuggestedBlock } from "@embedded/core";
+import { CreateProjectInput, UpdateProjectInput, type SuggestedBlock } from "@embedded/core";
 import { createArchetypesRepo, createBlocksRepo, createProjectsRepo } from "@embedded/db";
 
 /**
@@ -56,6 +56,17 @@ export async function projectRoutes(app: FastifyInstance) {
     }
 
     return reply.code(201).send(project);
+  });
+
+  app.patch("/projects/:id", async (req, reply) => {
+    const { id } = req.params as { id: string };
+    const parsed = UpdateProjectInput.safeParse(req.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ error: "invalid input", issues: parsed.error.issues });
+    }
+    const project = repo.update(id, parsed.data);
+    if (!project) return reply.code(404).send({ error: "project not found" });
+    return project;
   });
 
   app.delete("/projects/:id", async (req, reply) => {

@@ -1,31 +1,47 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import type { Component, PartHint } from "@embedded/core";
+import type { BlockRole, Component, ComponentCategory, PartHint } from "@embedded/core";
 import { api } from "../../lib/api";
 
 /**
  * Search-and-bind over a 22k-part library.
  *
- * A raw search box asks the designer to already know the answer. When the
- * block came from an archetype it carries a `hint`: the search a designer
- * would have run, plus the parts worth starting from. Those are shown first,
- * unprompted, so the common case is picking from three sensible options and
- * the search box is the escape hatch rather than the front door.
+ * A raw search box asks the designer to already know the answer, so the picker
+ * leads with suggestions: the archetype's known-good picks when the block has
+ * them, otherwise parts from the block's own category. Typing narrows within
+ * that category by default — the full-library search is one click away, not
+ * the default firehose.
  */
+
+/** Which library category a block role shops in. `other` searches everything. */
+const ROLE_CATEGORY: Partial<Record<BlockRole, ComponentCategory>> = {
+  mcu: "mcu",
+  sensor: "sensor",
+  radio: "radio",
+  power: "power",
+  actuator: "actuator-driver",
+  display: "display",
+};
+
 export function ComponentPicker({
   hint,
+  role,
   onPick,
   onCancel,
 }: {
   hint?: PartHint | undefined;
+  role?: BlockRole | undefined;
   onPick: (componentId: string) => void;
   onCancel: () => void;
 }) {
   const [q, setQ] = useState("");
   const [touched, setTouched] = useState(false);
+  const [allCategories, setAllCategories] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => inputRef.current?.focus(), []);
+
+  const category = hint?.category ?? (role ? ROLE_CATEGORY[role] : undefined);
 
   // the archetype's known-good picks, resolved against the actual library so a
   // part the library doesn't have simply doesn't appear
@@ -35,23 +51,33 @@ export function ComponentPicker({
     enabled: Boolean(hint?.prefer?.length),
   });
 
-  // the search the archetype would have run, until the user types their own
+  // suggestions before the user types: the archetype's search when there is
+  // one, else simply the block's category (ranked server-side: parts with real
+  // power data first) — so every block offers starting points, not a blank box
   const suggestQ = hint?.q ?? "";
-  const showSuggested = !touched && (suggestQ !== "" || hint?.category !== undefined);
+  const showSuggested = !touched && (suggestQ !== "" || category !== undefined);
   const { data: suggested } = useQuery({
-    queryKey: ["components", "suggested", suggestQ, hint?.category],
+    queryKey: ["components", "suggested", suggestQ, category],
     queryFn: () =>
       api.components.list({
         ...(suggestQ ? { q: suggestQ.split(" ")[0]! } : {}),
-        ...(hint?.category ? { category: hint.category } : {}),
+        ...(category ? { category } : {}),
         limit: 6,
       }),
     enabled: showSuggested,
   });
 
+  // typing keeps the category filter unless the user widens it — dropping the
+  // filter silently is how a sensor search turns into a firehose of connectors
+  const effectiveCategory = allCategories ? undefined : category;
   const { data: results, isFetching } = useQuery({
-    queryKey: ["components", "picker", q],
-    queryFn: () => api.components.list({ q, limit: 8 }),
+    queryKey: ["components", "picker", q, effectiveCategory],
+    queryFn: () =>
+      api.components.list({
+        q,
+        ...(effectiveCategory ? { category: effectiveCategory } : {}),
+        limit: 8,
+      }),
     enabled: q.trim().length >= 2,
   });
 
@@ -64,12 +90,13 @@ export function ComponentPicker({
         onClick={() => onPick(c.id)}
         className="flex w-full items-baseline justify-between gap-3 rounded px-2 py-1.5 text-left hover:bg-surface-3"
       >
-        <span className="flex items-baseline gap-1.5">
-          {starred && <span className="text-[10px] text-accent">★</span>}
-          <span className="font-mono text-xs text-ink">{c.mpn}</span>
-        </span>
-        <span className="truncate text-[11px] text-ink-faint">
-          {c.manufacturer || c.description || c.category}
+        <span className="flex min-w-0 items-baseline gap-1.5">
+          {starred && <span className="shrink-0 text-[10px] text-accent">★</span>}
+          <span className="shrink-0 font-mono text-xs text-ink">{c.mpn}</span>
+          {/* what the part IS matters more to a maker than who sells it */}
+          <span className="truncate text-[11px] text-ink-faint">
+            {c.description || c.manufacturer || c.category}
+          </span>
         </span>
       </button>
     </li>
@@ -86,10 +113,30 @@ export function ComponentPicker({
         }}
         onKeyDown={(e) => e.key === "Escape" && onCancel()}
         placeholder={
-          hint?.q ? `Search parts, or start from a suggestion below…` : "Search parts — BME280, nRF52840, SX1262…"
+          category ? `Search ${category} parts…` : "Search parts — BME280, nRF52840, SX1262…"
         }
         className="w-full rounded border border-line bg-surface-1 px-2.5 py-1.5 text-sm outline-none placeholder:text-ink-faint focus:border-accent-dim"
       />
+
+      {searching && category && (
+        <div className="mt-1 flex items-center gap-2 px-1 text-[10px] text-ink-faint">
+          {allCategories ? (
+            <>
+              searching everything ·
+              <button onClick={() => setAllCategories(false)} className="text-accent hover:underline">
+                only {category}
+              </button>
+            </>
+          ) : (
+            <>
+              searching {category} only ·
+              <button onClick={() => setAllCategories(true)} className="text-accent hover:underline">
+                search everything
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
       {!searching && (preferred?.length || suggested?.length) ? (
         <div className="mt-1.5 max-h-64 overflow-y-auto">
@@ -108,7 +155,7 @@ export function ComponentPicker({
           {suggested && suggested.filter((c) => !preferredIds.has(c.id)).length > 0 && (
             <>
               <p className="px-2 pb-0.5 pt-2 text-[10px] uppercase tracking-wide text-ink-faint">
-                Others in your library
+                {category ? `${category} parts in your library` : "In your library"}
               </p>
               <ul>
                 {suggested
@@ -129,8 +176,17 @@ export function ComponentPicker({
           )}
           {results?.length === 0 && (
             <li className="px-2 py-2 text-xs text-ink-faint">
-              Nothing matches. Import the KiCad library from Library → Sources, or ingest a
-              datasheet.
+              {effectiveCategory ? (
+                <>
+                  No {effectiveCategory} parts match.{" "}
+                  <button onClick={() => setAllCategories(true)} className="text-accent hover:underline">
+                    Search everything
+                  </button>{" "}
+                  instead?
+                </>
+              ) : (
+                <>Nothing matches. Import parts from Library → Sources, or ingest a datasheet.</>
+              )}
             </li>
           )}
           {results?.map((c) => (

@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import { Project, CreateProjectInput } from "@embedded/core";
+import { Project, CreateProjectInput, UpdateProjectInput } from "@embedded/core";
 import type { Db } from "../client.js";
 import { projects } from "../schema.js";
 
@@ -37,6 +37,19 @@ export function createProjectsRepo(db: Db) {
       };
       db.insert(projects).values(row).run();
       return rowToProject(row as typeof projects.$inferSelect);
+    },
+
+    update(id: string, input: UpdateProjectInput): Project | undefined {
+      const parsed = UpdateProjectInput.parse(input);
+      const existing = db.select().from(projects).where(eq(projects.id, id)).get();
+      if (!existing) return undefined;
+
+      db.update(projects)
+        .set({ name: parsed.name, updatedAt: new Date().toISOString() })
+        .where(eq(projects.id, id))
+        .run();
+      const row = db.select().from(projects).where(eq(projects.id, id)).get();
+      return row ? rowToProject(row) : undefined;
     },
 
     remove(id: string): void {

@@ -102,36 +102,23 @@ export function BringUpPanel({
           <p className="text-xs text-ink-faint">Checking for probe-rs…</p>
         )}
 
+        {/* No dead buttons: flashing arrives with the build+simulate pipeline.
+            Until then this line only reports what the machine has. */}
         {!loadingCapabilities && probeRs?.present && (
-          <div className="flex items-center justify-between gap-3">
-            <span className="flex items-center gap-1.5">
-              <span className="h-1.5 w-1.5 rounded-full bg-ok" />
-              <span className="text-[11px] text-ink-faint">
-                probe-rs detected{probeRs.version ? ` (v${probeRs.version})` : ""}
-              </span>
+          <span className="flex items-center gap-1.5">
+            <span className="h-1.5 w-1.5 rounded-full bg-ok" />
+            <span className="text-[11px] text-ink-faint">
+              probe-rs detected{probeRs.version ? ` (v${probeRs.version})` : ""} — ready for flashing
+              when firmware builds land
             </span>
-            <button
-              type="button"
-              disabled
-              title="Flashing needs a built firmware binary — this app does not produce one yet. The gate is real; the flash itself is not wired up."
-              className="shrink-0 rounded bg-accent px-3 py-1.5 text-xs font-medium text-surface-0 disabled:opacity-40"
-            >
-              Flash
-            </button>
-          </div>
+          </span>
         )}
 
         {!loadingCapabilities && probeRs && !probeRs.present && (
-          <div className="rounded border border-dashed border-line px-3 py-2.5">
-            <p className="text-[11px] text-ink-faint">
-              {probeRs.detail ?? "probe-rs not found on PATH."}
-            </p>
-            <p className="mt-1 text-[11px] text-ink-faint">
-              Install it from{" "}
-              <span className="font-mono text-ink-dim">probe.rs</span>, then reload this page —
-              flashing stays gated until it's found on PATH.
-            </p>
-          </div>
+          <p className="text-[11px] text-ink-faint">
+            Optional: install <span className="font-mono text-ink-dim">probe-rs</span> (probe.rs) to
+            flash over a debug probe. The checklist above works without it.
+          </p>
         )}
       </div>
     </section>

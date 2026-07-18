@@ -43,8 +43,16 @@ if (existsSync(webDist)) {
 async function listenWithRetry(retries = 10, delayMs = 300): Promise<void> {
   for (let attempt = 0; ; attempt++) {
     try {
-      await app.listen({ port: PORT, host: "127.0.0.1" });
-      console.log(`embedded server on http://localhost:${PORT}`);
+      // "localhost" makes Fastify bind BOTH loopback families (127.0.0.1 and
+      // ::1) where available — Windows browsers resolve localhost to ::1
+      // first, so an IPv4-only bind reads as ECONNREFUSED. Loopback only; the
+      // server must never be reachable from other machines.
+      await app.listen({ port: PORT, host: "localhost" });
+      const bound = app
+        .addresses()
+        .map((a) => (a.family === "IPv6" ? `[${a.address}]` : a.address))
+        .join(", ");
+      console.log(`embedded server on http://localhost:${PORT} (bound: ${bound})`);
       return;
     } catch (err) {
       const code = (err as NodeJS.ErrnoException).code;
