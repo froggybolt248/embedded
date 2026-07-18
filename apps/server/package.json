@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "node --watch --import tsx src/main.ts",
-    "build": "tsup src/main.ts --format esm --out-dir dist --external better-sqlite3",
+    "build": "tsup",
     "typecheck": "tsc --noEmit",
     "test": "vitest run"
   },

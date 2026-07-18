@@ -14,7 +14,12 @@ import { createArchetypesRepo, createRulesRepo, type Db } from "@embedded/db";
  * Seeding is insert-only (see `seed`), so this is safe to run every boot.
  */
 
-const SEEDS_DIR = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "seeds");
+// In the repo the seeds live at <root>/seeds relative to this source file. A
+// bundled/packaged build flattens that layout, so allow an explicit override
+// (the portable launcher points EMBEDDED_SEEDS_DIR at its co-located seeds/).
+const SEEDS_DIR =
+  process.env["EMBEDDED_SEEDS_DIR"] ??
+  join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..", "..", "seeds");
 
 export function seedArchetypes(db: Db, seedsDir = SEEDS_DIR): number {
   const repo = createArchetypesRepo(db);
