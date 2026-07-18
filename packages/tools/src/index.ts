@@ -4,3 +4,4 @@ export * from "./probe-rs.js";
 export * from "./system.js";
 export * from "./runtimes.js";
 export * from "./platformio.js";
+export * from "./renode.js";

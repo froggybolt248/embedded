@@ -12,6 +12,7 @@ export const PHASES = [
   { id: "components", label: "Components", blurb: "Which real parts" },
   { id: "electrical", label: "Electrical", blurb: "Does it hold up" },
   { id: "firmware", label: "Firmware", blurb: "Pins & skeleton" },
+  { id: "simulate", label: "Simulate", blurb: "Run it, no hardware" },
   { id: "bringup", label: "Bring-up", blurb: "First power-on" },
   { id: "optimize", label: "Optimize", blurb: "Measured vs estimated" },
 ] as const;
@@ -119,6 +120,7 @@ export function computeProgress(input: ProgressInputs): Record<PhaseId, PhasePro
     components,
     electrical,
     firmware: available,
+    simulate: available,
     bringup: available,
     optimize,
   };

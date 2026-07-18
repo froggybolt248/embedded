@@ -13,6 +13,7 @@ import { requirementRoutes } from "./routes/requirements.js";
 import { firmwareRoutes } from "./routes/firmware.js";
 import { schematicRoutes } from "./routes/schematic.js";
 import { capabilityRoutes } from "./routes/capabilities.js";
+import { simulateRoutes } from "./routes/simulate.js";
 import { seedArchetypes, seedRules } from "./services/seed.js";
 
 export interface AppOptions {
@@ -51,6 +52,7 @@ export function buildApp(opts: AppOptions = {}) {
   app.register(firmwareRoutes, { prefix: "/api" });
   app.register(schematicRoutes, { prefix: "/api" });
   app.register(capabilityRoutes, { prefix: "/api" });
+  app.register(simulateRoutes, { prefix: "/api" });
 
   return app;
 }

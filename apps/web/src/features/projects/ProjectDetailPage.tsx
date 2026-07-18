@@ -13,6 +13,7 @@ import { RequirementsPanel } from "./RequirementsPanel";
 import { ConnectionsPanel } from "./ConnectionsPanel";
 import { WakeCadencePanel } from "./WakeCadencePanel";
 import { FirmwarePanel } from "./FirmwarePanel";
+import { SimulatePanel } from "./SimulatePanel";
 import { BringUpPanel } from "./BringUpPanel";
 import { OptimizePanel } from "./OptimizePanel";
 import { PowerBudgetPanel } from "./PowerBudgetPanel";
@@ -28,6 +29,7 @@ const PHASE_ACTION: Record<PhaseId, string> = {
   components: "Bind each block to a real part. Suggestions are ranked for your library.",
   electrical: "Set connection voltages and the wake cadence — the checks run as you go.",
   firmware: "Generate the pin map and project files from your design.",
+  simulate: "Run the firmware on a simulated board — before buying anything.",
   bringup: "Power it on for the first time, step by step.",
   optimize: "Measure real currents and compare against the estimates.",
 };
@@ -146,6 +148,7 @@ export function ProjectDetailPage() {
       </div>
     ),
     firmware: <FirmwarePanel projectId={projectId} />,
+    simulate: <SimulatePanel projectId={projectId} />,
     bringup: <BringUpPanel projectId={projectId} {...(archetypeId ? { archetypeId } : {})} />,
     optimize: <OptimizePanel projectId={projectId} />,
   };

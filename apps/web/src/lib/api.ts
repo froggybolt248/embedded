@@ -527,4 +527,91 @@ export const api = {
       }
     },
   },
+  simulate: {
+    capability: (projectId: string) =>
+      request<SimulateCapability>(`/api/projects/${projectId}/simulate/capability`),
+    /** download the simulator, streaming ndjson progress lines */
+    downloadRenode: (onLine: (line: SimulateEvent) => void, signal?: AbortSignal) =>
+      streamNdjson("/api/simulate/renode/download", undefined, onLine, signal),
+    /** build the generated firmware and boot it on the simulated board */
+    run: (projectId: string, onLine: (line: SimulateEvent) => void, signal?: AbortSignal) =>
+      streamNdjson(`/api/projects/${projectId}/simulate/run`, undefined, onLine, signal),
+  },
 };
+
+/** POST + parse an ndjson stream line by line — the shape /llm/ollama/pull established. */
+async function streamNdjson(
+  url: string,
+  body: unknown,
+  onLine: (line: SimulateEvent) => void,
+  signal?: AbortSignal,
+): Promise<void> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body ?? {}),
+    ...(signal ? { signal } : {}),
+  });
+  if (!res.ok || !res.body) {
+    const text = await res.text().catch(() => "");
+    let message = text;
+    try {
+      message = (JSON.parse(text) as { error?: string }).error ?? text;
+    } catch {
+      /* not json */
+    }
+    throw new Error(message || `request failed: ${res.status}`);
+  }
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    let nl: number;
+    while ((nl = buffer.indexOf("\n")) >= 0) {
+      const line = buffer.slice(0, nl).trim();
+      buffer = buffer.slice(nl + 1);
+      if (!line) continue;
+      try {
+        onLine(JSON.parse(line) as SimulateEvent);
+      } catch {
+        /* ignore partial/garbage line */
+      }
+    }
+  }
+}
+
+export interface SimulateCapability {
+  target: { supported: boolean; boardName?: string; mpn?: string; detail?: string };
+  supportedBoards: string[];
+  renode: { present: boolean; version?: string; detail?: string };
+  platformio: { present: boolean; version?: string; detail?: string; nordicNrf52Installed: boolean };
+}
+
+/** one ndjson line from a simulator download or run */
+export interface SimulateEvent {
+  event:
+    | "progress"
+    | "done"
+    | "error"
+    | "phase"
+    | "materialized"
+    | "build-output"
+    | "built"
+    | "monitor"
+    | "monitor-output"
+    | "uart"
+    | "led";
+  receivedBytes?: number;
+  totalBytes?: number;
+  phase?: string;
+  chunk?: string;
+  command?: string;
+  output?: string;
+  state?: string;
+  error?: string;
+  elfPath?: string;
+  ledBlinked?: boolean;
+}

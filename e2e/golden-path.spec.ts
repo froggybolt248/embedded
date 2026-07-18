@@ -83,7 +83,7 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   // Lands on the new project's detail page — the guided stepper opens on
   // step 1, Scope.
   await expect(page).toHaveURL(/\/projects\/[^/]+$/);
-  await expect(page.getByText("step 1 of 7")).toBeVisible();
+  await expect(page.getByText("step 1 of 8")).toBeVisible();
 
   // --- Scope: type a requirement, Add it, see it in the list. ---
   const requirementsSection = page.locator("section", {
@@ -166,6 +166,18 @@ test("create a project from an archetype, bind a part, see it grounded, see a po
   await expect(iniRow).toBeVisible();
   await pinsRow.getByRole("button").first().click();
   await expect(pinsRow.getByText(/#error/)).toBeVisible();
+
+  // --- Simulate: the three capability legs report honestly. This design's
+  // MCU block is unbound (only the sensor got a part), so the target leg says
+  // so; a fresh data dir has no Renode; PlatformIO is environmental. The run
+  // button must be disabled — no dead buttons — and no leg may pretend. ---
+  await page.getByRole("button", { name: /Continue → Simulate/ }).click();
+  const simulateSection = page.locator("section", {
+    has: page.getByRole("heading", { name: "Simulate" }),
+  });
+  await expect(simulateSection.getByText("Simulatable MCU")).toBeVisible();
+  await expect(simulateSection.getByText(/supported today: nRF52840 DK/)).toBeVisible();
+  await expect(simulateSection.getByRole("button", { name: /Build & run in simulator/ })).toBeDisabled();
 
   // --- Bring-up: the heading renders and the probe-rs capability line
   // resolves to either the present-badge or the optional-install note —
