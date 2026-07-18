@@ -57,6 +57,15 @@ test.beforeAll(async ({ playwright, baseURL }) => {
     },
   });
   expect(res.ok(), `fixture component POST failed: ${res.status()} ${await res.text()}`).toBeTruthy();
+
+  // A fresh data dir is not onboarded, so the first-run setup wizard would
+  // overlay the app and intercept every click. Mark setup done up front — this
+  // test is about the design workflow, not provider setup (which has its own
+  // coverage). PUT replaces the whole settings object, so read-modify-write.
+  const current = await (await ctx.get("/api/llm/settings")).json();
+  const put = await ctx.put("/api/llm/settings", { data: { ...current, onboarded: true } });
+  expect(put.ok(), `marking onboarded failed: ${put.status()} ${await put.text()}`).toBeTruthy();
+
   await ctx.dispose();
 });
 

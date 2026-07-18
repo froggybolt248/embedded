@@ -1,5 +1,6 @@
 export * from "./types.js";
 export * from "./settings.js";
+export * from "./recommend.js";
 export * from "./json-schema.js";
 export * from "./grounding.js";
 export * from "./factory.js";

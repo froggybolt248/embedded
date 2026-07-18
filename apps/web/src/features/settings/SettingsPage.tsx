@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { LlmSettings, LlmProviderKind, ModelTier } from "@embedded/llm";
 import { api, type LlmExtractTestResult, type LlmHealthResult, type OllamaModelInfo } from "../../lib/api";
+import { openSetupWizard } from "../../shell/AppShell";
 
 const TIERS: ModelTier[] = ["triage", "extraction", "assistant"];
 const TIER_HINTS: Record<ModelTier, string> = {
@@ -79,7 +80,16 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-3xl p-8">
-      <h1 className="mb-1 text-xl font-semibold">Settings</h1>
+      <div className="mb-1 flex items-center justify-between gap-4">
+        <h1 className="text-xl font-semibold">Settings</h1>
+        <button
+          type="button"
+          onClick={openSetupWizard}
+          className="rounded-md border border-line px-3 py-1.5 text-xs text-ink-dim transition-colors hover:border-accent-dim hover:text-ink"
+        >
+          Re-run setup
+        </button>
+      </div>
       <p className="mb-6 text-sm text-ink-dim">
         LLM providers. Numbers in this app are never freehanded by a model — the LLM only
         classifies, extracts with citations, and drafts; calculators and your reviewed library

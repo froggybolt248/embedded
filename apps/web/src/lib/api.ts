@@ -24,7 +24,7 @@ import type {
   UpdateRequirementInput,
   QuantifiedRequirement,
 } from "@embedded/core";
-import type { LlmSettings, LlmProviderKind } from "@embedded/llm";
+import type { LlmSettings, LlmProviderKind, TierModels } from "@embedded/llm";
 import type { ExtractionFields } from "@embedded/ingest";
 
 export type { Datasheet, ExtractionRun };
@@ -52,6 +52,46 @@ export interface LlmExtractTestResult {
 export interface OllamaModelInfo {
   name: string;
   capabilities: string[];
+}
+
+export interface HardwareInfo {
+  cpu: { model: string; cores: number };
+  ramGb: number;
+  gpus: Array<{ name: string; vendor: string; vramGb?: number }>;
+  accelerator: "cuda" | "metal" | "cpu";
+  budgetGb: number;
+}
+
+export interface LlmDetectResult {
+  hardware: HardwareInfo;
+  ollama: {
+    cliInstalled: boolean;
+    cliVersion?: string;
+    serverRunning: boolean;
+    serverVersion?: string;
+    installedModels: string[];
+  };
+  claudeCode: { cliInstalled: boolean; cliVersion?: string };
+  recommendation: {
+    tier: "standard" | "compact";
+    models: TierModels;
+    uniqueModels: string[];
+    downloadGb: number;
+    note: string;
+    missingModels: string[];
+    alreadyInstalled: boolean;
+  };
+}
+
+/** one line of the model-pull progress stream */
+export interface PullLine {
+  model?: string;
+  status?: string;
+  total?: number;
+  completed?: number;
+  percent?: number;
+  done?: boolean;
+  error?: string;
 }
 
 export interface LibraryStats {
@@ -437,5 +477,47 @@ export const api = {
       request<{ models: OllamaModelInfo[] }>("/api/llm/ollama/models").then(
         (body) => body.models,
       ),
+    /** one-shot environment scan for the setup wizard */
+    detect: () => request<LlmDetectResult>("/api/llm/detect"),
+    /**
+     * Pull one or more Ollama models, calling `onLine` for each progress line
+     * as it streams. Resolves when the batch finishes; rejects on transport
+     * error. Pass a signal to cancel (closing the stream aborts the pull).
+     */
+    pullModels: async (
+      models: string[],
+      onLine: (line: PullLine) => void,
+      signal?: AbortSignal,
+    ): Promise<void> => {
+      const res = await fetch("/api/llm/ollama/pull", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ models }),
+        ...(signal ? { signal } : {}),
+      });
+      if (!res.ok || !res.body) {
+        const text = await res.text().catch(() => "");
+        throw new Error(`pull failed: ${res.status} ${text}`);
+      }
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        buffer += decoder.decode(value, { stream: true });
+        let nl: number;
+        while ((nl = buffer.indexOf("\n")) >= 0) {
+          const line = buffer.slice(0, nl).trim();
+          buffer = buffer.slice(nl + 1);
+          if (!line) continue;
+          try {
+            onLine(JSON.parse(line) as PullLine);
+          } catch {
+            /* ignore partial/garbage line */
+          }
+        }
+      }
+    },
   },
 };

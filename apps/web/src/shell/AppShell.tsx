@@ -1,5 +1,14 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "../lib/api";
+import { OnboardingWizard } from "../features/onboarding/OnboardingWizard";
+
+/** Anyone can ask for the setup wizard (e.g. Settings → Re-run setup). */
+export const OPEN_SETUP_EVENT = "embedded:open-setup";
+export function openSetupWizard() {
+  window.dispatchEvent(new Event(OPEN_SETUP_EVENT));
+}
 
 function NavItem({ to, label, glyph }: { to: string; label: string; glyph: ReactNode }) {
   return (
@@ -19,19 +28,48 @@ function NavItem({ to, label, glyph }: { to: string; label: string; glyph: React
   );
 }
 
+/** The setup wizard, shown once on a fresh install and on demand thereafter. */
+function useSetupWizard() {
+  const settings = useQuery({ queryKey: ["llm-settings"], queryFn: api.llm.getSettings });
+  const [open, setOpen] = useState(false);
+  const inited = useRef(false);
+
+  // Auto-open exactly once, when we first learn the install hasn't been set up.
+  useEffect(() => {
+    if (!inited.current && settings.isSuccess) {
+      inited.current = true;
+      if (!settings.data.onboarded) setOpen(true);
+    }
+  }, [settings.isSuccess, settings.data]);
+
+  // Let any surface re-open it later.
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener(OPEN_SETUP_EVENT, handler);
+    return () => window.removeEventListener(OPEN_SETUP_EVENT, handler);
+  }, []);
+
+  return { open, close: () => setOpen(false) };
+}
+
 /**
  * The frame. Everywhere but inside a project, a slim icon rail carries the
  * three spaces. On a project route the rail steps aside entirely — the project
- * brings its own phase rail — so the workspace gets its three clean panes.
+ * brings its own phase rail — so the workspace gets its three clean panes. The
+ * setup wizard overlays everything on first run.
  */
 export function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const inProject = /^\/projects\/[^/]+/.test(pathname);
+  const wizard = useSetupWizard();
+
+  const overlay = wizard.open ? <OnboardingWizard onFinish={wizard.close} /> : null;
 
   if (inProject) {
     return (
       <div className="h-full overflow-auto">
         <Outlet />
+        {overlay}
       </div>
     );
   }
@@ -49,6 +87,7 @@ export function AppShell() {
       <main className="min-w-0 flex-1 overflow-auto">
         <Outlet />
       </main>
+      {overlay}
     </div>
   );
 }

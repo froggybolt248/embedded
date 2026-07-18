@@ -18,6 +18,13 @@ export type TierModels = z.infer<typeof TierModels>;
  */
 export const LlmSettings = z.object({
   activeProvider: z.enum(["claude-code", "openai-compat", "ollama"]).default("ollama"),
+  /**
+   * Whether the user has been through first-run setup. False on a fresh install
+   * means the app has never confirmed a working provider — the onboarding
+   * wizard gates on this so a new user isn't dropped into features that quietly
+   * fail against an unconfigured default. Set true once they finish or skip.
+   */
+  onboarded: z.boolean().default(false),
   claudeCode: z
     .object({
       models: TierModels.default({
