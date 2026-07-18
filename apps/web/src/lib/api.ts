@@ -23,11 +23,12 @@ import type {
   CreateRequirementInput,
   UpdateRequirementInput,
   QuantifiedRequirement,
+  Schematic,
 } from "@embedded/core";
 import type { LlmSettings, LlmProviderKind, TierModels } from "@embedded/llm";
 import type { ExtractionFields } from "@embedded/ingest";
 
-export type { Datasheet, ExtractionRun };
+export type { Datasheet, ExtractionRun, Schematic };
 
 export interface ExtractionRunDetail extends ExtractionRun {
   progress: { phase: string; detail: string } | null;
@@ -328,6 +329,7 @@ export const api = {
         `/api/projects/${id}/architecture-proposal`,
         { method: "POST", body: JSON.stringify({}) },
       ),
+    schematic: (id: string) => request<Schematic>(`/api/projects/${id}/schematic`),
   },
   blocks: {
     list: (projectId: string) => request<Block[]>(`/api/projects/${projectId}/blocks`),

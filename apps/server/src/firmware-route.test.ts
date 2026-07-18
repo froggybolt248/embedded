@@ -83,4 +83,31 @@ describe("firmware routes", () => {
     const res = await app.inject({ method: "GET", url: "/api/projects/no-such-project/firmware" });
     expect(res.statusCode).toBe(404);
   });
+
+  it("round-trips pinAssignments through PATCH, GET, and generated firmware", async () => {
+    const list = await app.inject({ method: "GET", url: `/api/projects/${projectId}/connections` });
+    const conn = (list.json() as { id: string; attrs: Record<string, unknown> }[])[0]!;
+
+    const patch = await app.inject({
+      method: "PATCH",
+      url: `/api/connections/${conn.id}`,
+      payload: {
+        attrs: {
+          ...conn.attrs,
+          pinAssignments: { SDA: { from: "GPIO4" }, SCL: { from: "GPIO5" } },
+        },
+      },
+    });
+    expect(patch.statusCode).toBe(200);
+
+    const getAfter = await app.inject({ method: "GET", url: `/api/projects/${projectId}/connections` });
+    const updated = (getAfter.json() as { attrs: { pinAssignments?: unknown } }[])[0]!;
+    expect(updated.attrs.pinAssignments).toEqual({ SDA: { from: "GPIO4" }, SCL: { from: "GPIO5" } });
+
+    const firmware = await app.inject({ method: "GET", url: `/api/projects/${projectId}/firmware` });
+    const pins = (firmware.json() as { files: { name: string; content: string }[] }).files.find((f) => f.name === "pins.h")!;
+    expect(pins.content).toMatch(/#define MCU_ENVIRONMENT_SENSOR_I2C_SDA GPIO4 {2}\/\*/);
+    expect(pins.content).toMatch(/#define MCU_ENVIRONMENT_SENSOR_I2C_SCL GPIO5 {2}\/\*/);
+    expect(pins.content).not.toMatch(/^#error/m);
+  });
 });

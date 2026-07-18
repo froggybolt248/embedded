@@ -6,6 +6,7 @@ import { Button, Panel, PanelHeader } from "../../components/ui";
 import { PhaseRail } from "./PhaseRail";
 import { PHASES, type PhaseId } from "./phases";
 import { BlockCanvas, AddBlockBar } from "./BlockCanvas";
+import { SchematicView } from "./SchematicView";
 import { ArchitectureProposal } from "./ArchitectureProposal";
 import { ComponentsPanel } from "./ComponentsPanel";
 import { RequirementsPanel } from "./RequirementsPanel";
@@ -46,6 +47,7 @@ export function ProjectDetailPage() {
     return PHASES.some((p) => p.id === saved) ? (saved as PhaseId) : "scope";
   });
   const [capacityOverride, setCapacityOverride] = useState<number | null>(null);
+  const [archView, setArchView] = useState<"diagram" | "schematic">("diagram");
 
   const goToPhase = (id: PhaseId) => {
     setActivePhase(id);
@@ -99,10 +101,41 @@ export function ProjectDetailPage() {
     scope: <RequirementsPanel projectId={projectId} />,
     architecture: (
       <Panel>
-        <PanelHeader title="Architecture" aside="drag to place · connect handles to wire" />
-        <BlockCanvas projectId={projectId} />
-        <AddBlockBar projectId={projectId} />
-        <ArchitectureProposal projectId={projectId} onApplied={invalidate} />
+        <PanelHeader
+          title="Architecture"
+          aside={
+            <div className="flex items-center gap-3">
+              <span>
+                {archView === "diagram" ? "drag to place · connect handles to wire" : "derived · not editable"}
+              </span>
+              <div className="flex gap-1">
+                <Button
+                  variant={archView === "diagram" ? "primary" : "ghost"}
+                  size="sm"
+                  onClick={() => setArchView("diagram")}
+                >
+                  Diagram
+                </Button>
+                <Button
+                  variant={archView === "schematic" ? "primary" : "ghost"}
+                  size="sm"
+                  onClick={() => setArchView("schematic")}
+                >
+                  Schematic
+                </Button>
+              </div>
+            </div>
+          }
+        />
+        {archView === "diagram" ? (
+          <>
+            <BlockCanvas projectId={projectId} />
+            <AddBlockBar projectId={projectId} />
+            <ArchitectureProposal projectId={projectId} onApplied={invalidate} />
+          </>
+        ) : (
+          <SchematicView projectId={projectId} />
+        )}
       </Panel>
     ),
     components: <ComponentsPanel projectId={projectId} {...(archetypeId ? { archetypeId } : {})} />,

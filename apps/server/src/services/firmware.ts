@@ -3,15 +3,18 @@ import type { Block, Component, Connection } from "@embedded/core";
 /**
  * v1 firmware codegen — pins.h and platformio.ini from a BLOCK-PORT design.
  *
- * The domain model has no pin numbers anywhere: a Connection says "MCU is
- * wired to Environment sensor over i2c", never "on GPIO4". Inventing a
+ * The domain model has no pin numbers anywhere on its own: a Connection says
+ * "MCU is wired to Environment sensor over i2c", never "on GPIO4" — UNLESS
+ * the designer has stated one via `attrs.pinAssignments`. Inventing a
  * plausible-looking pin here would be exactly this app's characteristic bug —
  * a confident number nobody actually chose, silently baked into generated
- * code a reader would otherwise trust. So every signal this module emits is a
- * `#define NAME` with no value and a comment saying so, and the header ends
- * with a single `#error` that will not let the file compile until a human
- * fills them in. That is the one honest mechanism used throughout, rather
- * than mixing per-signal `#error`s with placeholder defines.
+ * code a reader would otherwise trust. So a signal with no stated assignment
+ * still gets a `#define NAME` with no value and a comment saying so, and the
+ * header ends with an `#error` that will not let the file compile until a
+ * human fills in whatever is left. A signal the designer DID assign gets a
+ * real `#define NAME <PIN>` and drops out of that error entirely. That is
+ * the one honest mechanism used throughout: never guess, but once a human
+ * states a pin, use it.
  */
 
 export interface FirmwareInput {
@@ -82,10 +85,11 @@ export function generatePinmapHeader(input: FirmwareInput): string {
   const lines: string[] = [
     `/*`,
     ` * ${projectName} — pin map header`,
-    ` * Generated from the block/connection design. This design is BLOCK-PORT`,
-    ` * level only — it does not contain a single pin number. Every define below`,
-    ` * is a placeholder; the #error at the bottom of this file will not let it`,
-    ` * compile until real pins are filled in by hand.`,
+    ` * Generated from the block/connection design. Signals the designer has`,
+    ` * assigned a real pin to (Connection.attrs.pinAssignments) are emitted`,
+    ` * with that value; every other signal is a placeholder, and the #error`,
+    ` * at the bottom of this file will not let it compile until the rest are`,
+    ` * filled in by hand.`,
     ` */`,
     `#pragma once`,
     ``,
@@ -115,8 +119,17 @@ export function generatePinmapHeader(input: FirmwareInput): string {
     const signals = INTERFACE_SIGNALS[conn.interface] ?? [ifaceUpper];
     for (const signal of signals) {
       const name = `${prefix}_${ifaceUpper}_${signal}`;
-      lines.push(`#define ${name}  /* PIN NOT ASSIGNED — ${fromBlock.name} <-> ${toBlock.name} ${conn.interface} ${signal} */`);
-      unassigned.push(name);
+      // The MCU-side pin is what pins.h needs to compile, so `from` wins when
+      // both ends are stated; but honor a `to`-only assignment too rather
+      // than silently treating it as unassigned.
+      const assigned = conn.attrs.pinAssignments?.[signal];
+      const pin = assigned?.from ?? assigned?.to;
+      if (pin !== undefined) {
+        lines.push(`#define ${name} ${pin}  /* ${fromBlock.name} <-> ${toBlock.name} ${conn.interface} ${signal} */`);
+      } else {
+        lines.push(`#define ${name}  /* PIN NOT ASSIGNED — ${fromBlock.name} <-> ${toBlock.name} ${conn.interface} ${signal} */`);
+        unassigned.push(name);
+      }
     }
 
     // Known bus attrs get emitted as real values with their origin — they

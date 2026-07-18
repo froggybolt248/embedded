@@ -151,6 +151,74 @@ describe("generatePinmapHeader", () => {
     expect(generatePlatformioIni(input)).toBe(generatePlatformioIni(input));
   });
 
+  it("keeps the #error and lists every signal when nothing is assigned", () => {
+    const mcu = block({ id: "b1", name: "MCU" });
+    const sensor = block({ id: "b2", name: "Sensor" });
+    const conn = connection({ id: "c1", fromBlockId: "b1", toBlockId: "b2", interface: "i2c" });
+    const input: FirmwareInput = { projectName: "P", blocks: [mcu, sensor], connections: [conn], components: new Map() };
+
+    const header = generatePinmapHeader(input);
+    expect(header).toMatch(/#error "pins\.h: 2 pin\(s\) not assigned in the design \(MCU_SENSOR_I2C_SDA, MCU_SENSOR_I2C_SCL\)/);
+    expect(header).not.toMatch(/#define MCU_SENSOR_I2C_SDA \d/);
+    expect(header).not.toMatch(/#define MCU_SENSOR_I2C_SCL \d/);
+  });
+
+  it("emits a real value for an assigned signal and leaves the rest unassigned, #error still present", () => {
+    const mcu = block({ id: "b1", name: "MCU" });
+    const sensor = block({ id: "b2", name: "Sensor" });
+    const conn = connection({
+      id: "c1",
+      fromBlockId: "b1",
+      toBlockId: "b2",
+      interface: "i2c",
+      attrs: { pinAssignments: { SDA: { from: "GPIO4" } } },
+    });
+    const input: FirmwareInput = { projectName: "P", blocks: [mcu, sensor], connections: [conn], components: new Map() };
+
+    const header = generatePinmapHeader(input);
+    expect(header).toMatch(/#define MCU_SENSOR_I2C_SDA GPIO4 {2}\/\*/);
+    expect(header).toMatch(/#define MCU_SENSOR_I2C_SCL {2}\/\* PIN NOT ASSIGNED/);
+    expect(header).toMatch(/#error "pins\.h: 1 pin\(s\) not assigned in the design \(MCU_SENSOR_I2C_SCL\)/);
+  });
+
+  it("drops the #error entirely once every signal is assigned", () => {
+    const mcu = block({ id: "b1", name: "MCU" });
+    const sensor = block({ id: "b2", name: "Sensor" });
+    const conn = connection({
+      id: "c1",
+      fromBlockId: "b1",
+      toBlockId: "b2",
+      interface: "i2c",
+      attrs: { pinAssignments: { SDA: { from: "GPIO4" }, SCL: { from: "GPIO5" } } },
+    });
+    const input: FirmwareInput = { projectName: "P", blocks: [mcu, sensor], connections: [conn], components: new Map() };
+
+    const header = generatePinmapHeader(input);
+    expect(header).toMatch(/#define MCU_SENSOR_I2C_SDA GPIO4 {2}\/\*/);
+    expect(header).toMatch(/#define MCU_SENSOR_I2C_SCL GPIO5 {2}\/\*/);
+    // ^-anchored: the header's own docstring mentions "#error" by name, only
+    // a line starting with the directive itself would mean it's still there
+    expect(header).not.toMatch(/^#error/m);
+    expect(header).not.toMatch(/PIN NOT ASSIGNED/);
+  });
+
+  it("falls back to the `to` pin when only the to-end is stated", () => {
+    const mcu = block({ id: "b1", name: "MCU" });
+    const sensor = block({ id: "b2", name: "Sensor" });
+    const conn = connection({
+      id: "c1",
+      fromBlockId: "b1",
+      toBlockId: "b2",
+      interface: "gpio",
+      attrs: { pinAssignments: { PIN: { to: "SENSOR_PIN_3" } } },
+    });
+    const input: FirmwareInput = { projectName: "P", blocks: [mcu, sensor], connections: [conn], components: new Map() };
+
+    const header = generatePinmapHeader(input);
+    expect(header).toMatch(/#define MCU_SENSOR_GPIO_PIN SENSOR_PIN_3 {2}\/\*/);
+    expect(header).not.toMatch(/^#error/m);
+  });
+
   it("excludes power connections from pins.h", () => {
     const battery = block({ id: "b1", name: "Battery" });
     const mcu = block({ id: "b2", name: "MCU" });

@@ -97,8 +97,17 @@ export const ConnectionAttrs = z.object({
   busCapacitanceF: z.number().positive().optional(),
   /** the pull-up resistance actually fitted to this bus, ohms */
   pullupOhms: z.number().positive().optional(),
-  /** reserved for pin-level deepening + KiCad export */
-  pinMap: z.record(z.string()).optional(),
+  /**
+   * The real pin at each end, as the designer assigned it — keyed by SIGNAL
+   * name (SDA, SCL, SCK, ...; see INTERFACE_SIGNALS in firmware.ts). This is
+   * the one place a real pin number is allowed to exist: the firmware
+   * generator reads it to turn a valueless `#define` into a real one, and
+   * only a human stating a pin here can do that — the generator itself never
+   * invents one. Replaces the old unnamed/untyped `pinMap` field, which
+   * nothing in the codebase ever wrote (verified by grep) and is deleted
+   * rather than kept for compatibility.
+   */
+  pinAssignments: z.record(z.string(), z.object({ from: z.string().min(1).optional(), to: z.string().min(1).optional() })).optional(),
 });
 export type ConnectionAttrs = z.infer<typeof ConnectionAttrs>;
 
