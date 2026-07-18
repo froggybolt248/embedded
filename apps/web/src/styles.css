@@ -7,18 +7,19 @@
   --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
-  /* instrument-panel palette: near-black surfaces, one accent.
-     This is the app's fixed identity — see DESIGN.md. Do not add hues. */
-  --color-surface-0: #0a0b0d;
-  --color-surface-1: #111318;
-  --color-surface-2: #191c23;
-  --color-surface-3: #22262f;
-  --color-line: #2a2f3a;
-  --color-ink: #e6e9ef;
-  --color-ink-dim: #9aa3b2;
-  --color-ink-faint: #5c6470;
-  --color-accent: #4fd1c5;
-  --color-accent-dim: #2c7a73;
+  /* instrument-panel palette: warm near-black surfaces, one ember accent.
+     This is the app's fixed identity — see DESIGN.md. Do not add hues.
+     Base #090605, accent #F25F1A, neutral #B7B3B3. */
+  --color-surface-0: #090605;
+  --color-surface-1: #12100e;
+  --color-surface-2: #1b1815;
+  --color-surface-3: #26221e;
+  --color-line: #322c27;
+  --color-ink: #f2efec;
+  --color-ink-dim: #b7b3b3;
+  --color-ink-faint: #6b6560;
+  --color-accent: #f25f1a;
+  --color-accent-dim: #7a2f11;
   --color-warn: #f6ad55;
   --color-danger: #fc8181;
   --color-ok: #68d391;
