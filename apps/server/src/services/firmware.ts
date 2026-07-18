@@ -1,4 +1,5 @@
 import type { Block, Component, Connection } from "@embedded/core";
+import { simulationTargetFor } from "./simulation-targets.js";
 
 /**
  * v1 firmware codegen — pins.h and platformio.ini from a BLOCK-PORT design.
@@ -157,6 +158,29 @@ export function generatePlatformioIni(input: FirmwareInput): string {
 
   const mcu = blocks.find((b) => b.role === "mcu" && b.componentId);
   const mcuMpn = mcu?.componentId ? components.get(mcu.componentId)?.mpn : undefined;
+  const target = simulationTargetFor(mcuMpn);
+
+  // A part this app can simulate has a board id we can state exactly, because
+  // it describes OUR simulator rather than the user's hardware — see
+  // `simulation-targets.ts` for why that distinction is what keeps this
+  // honest. It is emitted with its origin attached so a reader can tell it
+  // apart from something the design itself stated, and can override it.
+  if (target) {
+    return [
+      `; ${projectName} — PlatformIO project file`,
+      `; board and framework below are this app's SIMULATION target for`,
+      `; ${mcuMpn}, not a fact read from your design: an MPN names a chip, and`,
+      `; the same chip ships on many boards with different pin mappings. If you`,
+      `; are building for real hardware that is not a ${target.boardName},`,
+      `; change them.`,
+      `[env:${envName}]`,
+      `board = ${target.platformioBoard}  ; ${target.boardName} — the board this app simulates for ${mcuMpn}`,
+      `framework = ${target.platformioFramework}  ; matches the platform Renode models for this board`,
+      `monitor_speed = 115200`,
+      ``,
+    ].join("\n");
+  }
+
   const boardNote = mcuMpn
     ? `unknown — MCU is bound to ${mcuMpn}, but a PlatformIO board id cannot be derived from an MPN alone`
     : "unknown — no MCU part is bound in this design";

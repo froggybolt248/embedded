@@ -279,4 +279,36 @@ describe("generatePlatformioIni", () => {
     expect(ini).toMatch(/^; board = .*STM32F103C8T6/m);
     expect(ini).not.toMatch(/^board\s*=/m);
   });
+
+  it("states the simulation board for an MCU this app can simulate, with its origin attached", () => {
+    const mcu = block({ id: "b1", name: "MCU", role: "mcu", componentId: "comp1" });
+    const components = new Map<string, Component>([
+      [
+        "comp1",
+        {
+          id: "comp1",
+          mpn: "NRF52840-QIAA",
+          manufacturer: "",
+          description: "",
+          category: "mcu",
+          lifecycle: "unknown",
+          specs: { absoluteMax: [], recommendedOperating: [], powerStates: [], pins: [], interfaces: [], decoupling: [], extra: {} },
+          familyId: null,
+          isFamily: false,
+          variantAttrs: {},
+          createdAt: "",
+          updatedAt: "",
+        },
+      ],
+    ]);
+    const input: FirmwareInput = { projectName: "P", blocks: [mcu], connections: [], components };
+
+    const ini = generatePlatformioIni(input);
+    // A live board id, because it names OUR simulator, not the user's hardware —
+    // and the comment beside it says exactly that, so a reader can tell this
+    // apart from a fact the design stated and knows they may override it.
+    expect(ini).toMatch(/^board = nrf52840_dk\s+;.*simulates/m);
+    expect(ini).toMatch(/^framework = zephyr/m);
+    expect(ini).toMatch(/not a fact read from your design/);
+  });
 });

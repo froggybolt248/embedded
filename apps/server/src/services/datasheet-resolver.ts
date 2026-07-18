@@ -67,17 +67,39 @@
  *     slots in as a third ladder rung between `resolveFromLinks` and
  *     "give up" without changing this module's public shape.
  *
- * Step 4 (2026-07-18) is that third rung: the vendor's OWN site search, tried
- * only once steps 1-3 have all failed. `resolveFromVendorSearch` derives the
- * vendor host from the recorded URL and probes a couple of the query-string
- * conventions real vendor sites commonly use for on-site search. Trying a URL
- * shape that doesn't exist on a given host is harmless — it 404s (or returns
- * an unrelated page) and `fetchOnce`/`findPdfCandidates` treat that exactly
- * like any other dead link: zero candidates, next pattern tried, eventually a
- * clean "found nothing" rather than a guess. This is the SAME confidence gate
- * as every other rung — `pickBestCandidate` + `MIN_CONFIDENT_SCORE` — so a
- * search page that happens to list ten unrelated parts refuses to pick any of
- * them, same as a vendor page would.
+ * A fourth rung — the vendor's OWN site search, guessing `/search?q={mpn}`
+ * and `/?s={mpn}` — was added on 2026-07-18 and then MEASURED LIVE the same
+ * day against 8 real vendor hosts this library actually has parts from (ST,
+ * TI, Microchip, onsemi, Infineon, Analog Devices, Nordic via two different
+ * hostnames), 2 requests each, using the real `findPdfCandidates` +
+ * `pickBestCandidate` scoring on whatever HTML came back. Result: 0 of 16
+ * requests produced a single scoreable `.pdf` href, let alone a confident
+ * one. For 5 of the 6 non-Nordic vendors the MPN string did not appear
+ * ANYWHERE in the raw HTML — the results are populated client-side after
+ * hydration, the exact same failure already ruled out digikey.com above, and
+ * for the same reason: a bare `fetch` never runs the JavaScript that would
+ * populate the page. St.com's `/?s=` page was the one exception that returned
+ * a body mentioning the MPN at all, and the only `.pdf` link on it was the
+ * boilerplate "Terms and Conditions of Sales" footer link every page carries
+ * — `findPdfCandidates` correctly scored it 0 and `pickBestCandidate` refused
+ * it, which is the gate working as designed, not a near-miss.
+ *
+ * On top of that, three more vendors that matter to this library —
+ * nxp.com, vishay.com, nexperia.com — publish a `robots.txt` with
+ * `Disallow: /search` under `User-agent: *`, which the guessed
+ * `/search?q=` shape walks straight into. That is a hard stop per this
+ * project's rules regardless of what the page would have contained.
+ *
+ * So: guessing a vendor's on-site search URL doesn't earn a fourth rung. It
+ * cannot work in the general case (client-side rendering defeats it exactly
+ * like the aggregators below), and even trying costs a robots.txt violation
+ * on some hosts and two wasted, unbounded-shape round trips on the rest for
+ * every part that reaches it. Per the house rule that governs this whole
+ * file — an uncited gap beats a fallback that quietly degrades into noise —
+ * it was reverted rather than shipped. `resolveDatasheetPdf` is steps 1-3
+ * only. If a vendor ever exposes a server-rendered search results page (or a
+ * documented, stable search API) this could be revisited per-host, but a
+ * fixed two-URL guess applied uniformly across vendors is not that.
  *
  * A general public "datasheet aggregator" rung (the other half of what was
  * asked for here) was investigated live (2026-07-18) and deliberately NOT
@@ -104,8 +126,9 @@
  *     change regardless.
  *
  * If a genuinely fetchable, ToS-clean, key-free aggregator shows up later, it
- * slots in as a rung between `resolveFromVendorSearch` and "give up" without
- * changing this module's public shape — same as the note above always said.
+ * slots in as a fourth rung, after `resolveViaRecordedUrl` and before "give
+ * up", without changing this module's public shape — same as the note above
+ * always said.
  *
  * HTML parsing here is a small regex over `<a href="...">text</a>`, not a
  * dependency. A vendor product page is simple enough that a real DOM parser
@@ -393,66 +416,6 @@ export interface ResolvedDatasheet {
   reason: string;
 }
 
-/** shorter than FETCH_TIMEOUT_MS: these are speculative probes of URL shapes that may not exist at all */
-const VENDOR_SEARCH_TIMEOUT_MS = 10_000;
-
-/**
- * Pure — no network. The query-string conventions real vendor sites most
- * commonly use for their own on-site search. Deliberately a short, fixed
- * list (not an open-ended guess-anything scheme): each extra pattern is one
- * more sequential network round trip on the failure path, and "total added
- * latency must be bounded" is a hard constraint here. Exported so the URL
- * derivation can be checked without a network — see
- * `datasheet-resolver.test.ts`.
- */
-export function vendorSearchUrls(host: string, mpn: string): string[] {
-  const q = encodeURIComponent(mpn);
-  return [`https://${host}/search?q=${q}`, `https://${host}/?s=${q}`];
-}
-
-/**
- * Rung 4: the vendor's own site search, tried only once the recorded URL —
- * live, archived, and crawled for links on both — has produced nothing
- * confident. Same shape as step 2's `resolveFromLinks`: fetch a page, score
- * its links with `findPdfCandidates`, follow the best one through `retrieve`
- * so a 200-with-HTML "success" still gets caught. Never throws — a probed URL
- * shape that doesn't exist on this host is a normal outcome (try the next
- * one), not an error; the caller decides what "nothing worked at all" means.
- */
-async function resolveFromVendorSearch(recordedUrl: string, mpn: string): Promise<ResolvedDatasheet | undefined> {
-  const host = hostOf(recordedUrl);
-  for (const searchUrl of vendorSearchUrls(host, mpn)) {
-    let outcome: FetchOutcome;
-    try {
-      outcome = await fetchOnce(searchUrl, VENDOR_SEARCH_TIMEOUT_MS);
-    } catch {
-      continue; // this convention doesn't exist on this host — try the next one
-    }
-    // A bare PDF answering a guessed *search* URL (not a specific part page)
-    // is not evidence it names this MPN — refuse rather than guess, same as
-    // everywhere else in this module.
-    if (!outcome.html) continue;
-
-    const best = pickBestCandidate(findPdfCandidates(outcome.html, searchUrl, mpn));
-    if (!best) continue;
-
-    let followed: Retrieved;
-    try {
-      followed = await retrieve(best.url, true);
-    } catch {
-      continue;
-    }
-    if (followed.html) continue;
-
-    return {
-      bytes: followed.bytes,
-      url: best.url,
-      reason: `${host} did not link ${mpn}'s datasheet from the recorded URL (or its archive); found it via ${host}'s own site search (${searchUrl}), which linked "${best.text}", fetched from ${followed.via}`,
-    };
-  }
-  return undefined;
-}
-
 /**
  * The ladder: (1) recorded URL as-is, (2) if that's HTML, the best-scoring
  * PDF link found on it, (3) the Internet Archive's copy of either. Throws
@@ -533,23 +496,14 @@ async function resolveViaRecordedUrl(recordedUrl: string, mpn: string): Promise<
 }
 
 /**
- * Public entry point. Tries the recorded-URL ladder (steps 1-3 above) in
- * full, and only when that has exhausted itself — recorded URL dead, its
- * archived copy dead too, and neither carried a confidently-scored link —
- * falls through to rung 4, the vendor's own site search. `resolveViaRecordedUrl`
- * throwing is a normal outcome here (a part that cannot ground is not a bug),
- * not something that needs its own try/catch upstream; this function's throw
- * on total failure carries the original reason forward so a human auditing a
- * failed part still sees exactly what the vendor and archive said, not just
- * that the site-search rung also came up empty.
+ * Public entry point. Runs the recorded-URL ladder (steps 1-3 above) and
+ * nothing else — a fourth, vendor-site-search rung was built, measured live
+ * against 8 real vendor hosts, and reverted (see the header comment) because
+ * it never once produced a confident candidate and would have violated
+ * `robots.txt` on three more. `resolveViaRecordedUrl` throwing is a normal
+ * outcome here (a part that cannot ground is not a bug), so this does not
+ * need its own try/catch wrapper.
  */
 export async function resolveDatasheetPdf(recordedUrl: string, mpn: string): Promise<ResolvedDatasheet> {
-  try {
-    return await resolveViaRecordedUrl(recordedUrl, mpn);
-  } catch (err) {
-    const primaryMessage = err instanceof Error ? err.message : String(err);
-    const viaVendorSearch = await resolveFromVendorSearch(recordedUrl, mpn);
-    if (viaVendorSearch) return viaVendorSearch;
-    throw new Error(`${primaryMessage}; ${hostOf(recordedUrl)}'s own site search for ${mpn} also found nothing confident`);
-  }
+  return resolveViaRecordedUrl(recordedUrl, mpn);
 }

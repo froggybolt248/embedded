@@ -5,7 +5,6 @@ import {
   rawSnapshotUrl,
   resolveDatasheetPdf,
   snapshotDate,
-  vendorSearchUrls,
   type PdfLinkCandidate,
 } from "./services/datasheet-resolver.js";
 
@@ -237,101 +236,6 @@ describe("resolveDatasheetPdf archive fallback", () => {
       },
     });
     await expect(resolveDatasheetPdf(PS_PDF, "PART1")).rejects.toThrow(/no usable copy/);
-  });
-});
-
-describe("vendorSearchUrls", () => {
-  it("derives a short, fixed set of common site-search conventions from the host", () => {
-    expect(vendorSearchUrls("www.raytac.com", "MDBT50Q-1MV2")).toEqual([
-      "https://www.raytac.com/search?q=MDBT50Q-1MV2",
-      "https://www.raytac.com/?s=MDBT50Q-1MV2",
-    ]);
-  });
-
-  it("URL-encodes the MPN so odd characters can't break the query string", () => {
-    for (const url of vendorSearchUrls("vendor.example", "A/B C")) {
-      expect(url).not.toContain(" ");
-    }
-  });
-});
-
-/**
- * Rung 4: only reached once the recorded-URL ladder (vendor, its HTML links,
- * and the archive) has been fully exhausted. Driven through a stubbed fetch,
- * same pattern as the archive-fallback suite above.
- */
-describe("resolveDatasheetPdf vendor-search fallback", () => {
-  afterEach(() => vi.unstubAllGlobals());
-
-  const PDF = Buffer.from("%PDF-1.4 real datasheet bytes");
-  const DEAD_URL = "http://vendor.example/old/gone.pdf";
-  const SEARCH_URL = "https://vendor.example/search?q=PART1";
-  const FOUND_PDF = "https://vendor.example/files/PART1-datasheet.pdf";
-
-  function stubFetch(routes: Record<string, { status?: number; body: Buffer | string; type?: string }>) {
-    const calls: string[] = [];
-    vi.stubGlobal("fetch", async (input: string | URL) => {
-      const url = String(input);
-      calls.push(url);
-      const hit = routes[url];
-      if (!hit) return new Response("not found", { status: 404 });
-      const body = typeof hit.body === "string" ? hit.body : new Uint8Array(hit.body);
-      return new Response(body, {
-        status: hit.status ?? 200,
-        headers: { "content-type": hit.type ?? "application/octet-stream" },
-      });
-    });
-    return calls;
-  }
-
-  it("resolves via the vendor's own site search once the recorded URL and its archive both fail", async () => {
-    // DEAD_URL 404s outright, and its wayback lookup (unstubbed -> 404) has
-    // nothing either, so `resolveViaRecordedUrl` throws before rung 4 runs.
-    const calls = stubFetch({
-      [SEARCH_URL]: {
-        type: "text/html",
-        body: `
-          <a href="/legal/terms.pdf">Terms of Use</a>
-          <a href="/files/PART1-datasheet.pdf">PART1 Datasheet</a>
-        `,
-      },
-      [FOUND_PDF]: { body: PDF, type: "application/pdf" },
-    });
-
-    const got = await resolveDatasheetPdf(DEAD_URL, "PART1");
-    expect(got.bytes.subarray(0, 5).toString("latin1")).toBe("%PDF-");
-    expect(got.url).toBe(FOUND_PDF);
-    // reason must name the source so a human can audit the pick
-    expect(got.reason).toContain("vendor.example's own site search");
-    expect(got.reason).toContain(SEARCH_URL);
-    expect(calls).toContain(SEARCH_URL);
-    expect(calls).toContain(FOUND_PDF);
-  });
-
-  it("refuses a low-scoring vendor-search result rather than guessing", async () => {
-    // Neither link on this page names the part or says "datasheet" —
-    // MIN_CONFIDENT_SCORE must still gate this rung exactly like every other.
-    stubFetch({
-      [SEARCH_URL]: {
-        type: "text/html",
-        body: `
-          <a href="/files/brochure.pdf">Company Brochure</a>
-          <a href="/files/careers.pdf">We're Hiring</a>
-        `,
-      },
-    });
-
-    await expect(resolveDatasheetPdf(DEAD_URL, "PART1")).rejects.toThrow(/also found nothing confident/);
-  });
-
-  it("stops at the first confident hit and never probes the vendor-search rung at all", async () => {
-    // The recorded URL is itself a live PDF — step 1 succeeds outright, so
-    // rung 4 (or any later rung) must never be reached.
-    const calls = stubFetch({ [FOUND_PDF]: { body: PDF, type: "application/pdf" } });
-    const got = await resolveDatasheetPdf(FOUND_PDF, "PART1");
-    expect(got.reason).toBe("recorded URL served a PDF from vendor");
-    expect(calls).toEqual([FOUND_PDF]);
-    expect(calls).not.toContain(SEARCH_URL);
   });
 });
 

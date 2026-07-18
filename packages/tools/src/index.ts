@@ -3,3 +3,4 @@ export const TOOLS_PACKAGE = "@embedded/tools";
 export * from "./probe-rs.js";
 export * from "./system.js";
 export * from "./runtimes.js";
+export * from "./platformio.js";
